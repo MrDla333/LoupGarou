@@ -544,9 +544,9 @@ body {
 .night-step {
   display: flex;
   align-items: center;
-  padding: 0 16px;
+  padding: 0 12px;
   height: var(--step-h);
-  gap: 12px;
+  gap: 8px;
   border-bottom: 1px solid var(--border);
   position: relative;
   transition: all 0.2s;
@@ -902,116 +902,116 @@ const ROLES = [
   // ─── WOLVES ───
   { id:'simple_wolf',   emoji:'🐺', team:'Wolves',    wakes:true,  nightOrder:50,  defaultCount:2, minCount:0, maxCount:8,
     nameEn:'Simple Wolf',     nameAr:'الذئب العادي',
-    descEn:'Wakes each night with the wolf pack to vote on a target. Stays hidden by day.',
-    descAr:'يستيقظ كل ليلة مع مجموعة الذئاب للتصويت على هدف.' },
+    descEn:'Every night all wolves open their eyes together and silently agree on one villager to kill. As a Simple Wolf your only power is that kill vote — but blending in during the day is just as important. Act like a normal villager, point suspicion at others, and never let your reactions give you away.',
+    descAr:'كل ليلة، تفتح جميع الذئاب عيونها معاً وتتفق بصمت على قتل قروي واحد. كذئب بسيط، قوتك الوحيدة هي هذا التصويت — لكن الاندماج أثناء النهار لا يقل أهمية.' },
 
   { id:'black_wolf',    emoji:'🖤', team:'Wolves',    wakes:true,  nightOrder:100, defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Black Wolf',      nameAr:'الذئب الأسود',
-    descEn:'Wakes with wolves (All Wolves), then wakes again to Silence one player who cannot speak the following day.',
-    descAr:'يستيقظ مع الذئاب، ثم يستيقظ مجددًا ليُسكت لاعبًا لا يستطيع الكلام في اليوم التالي.',
+    descEn:'You wake twice every night. First with all wolves to vote on who to kill. Then you wake alone to choose one player to Silence. That player cannot say a single word the entire next day, but can still vote and use their powers. Use it to shut down the Seer before they share findings, stop someone about to expose a wolf, or just create chaos. Cannot silence the same person two nights in a row.',
+    descAr:'تستيقظ مرتين كل ليلة. أولاً مع جميع الذئاب للتصويت. ثم تستيقظ وحدك لتختار لاعباً لإسكاته. لا يستطيع ذلك اللاعب قول كلمة واحدة طول اليوم التالي، لكنه لا يزال يستطيع التصويت واستخدام قدراته. استخدمه لإسكات العرّافة قبل مشاركة نتائجها. لا يمكن إسكات نفس الشخص مرتين متتاليتين.',
     interactive: true, abilityLabel: 'Silence 🔇', abilityTag: 'silenced' },
 
   { id:'blue_wolf',     emoji:'💙', team:'Wolves',    wakes:true,  nightOrder:50,  defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Blue Wolf',       nameAr:'الذئب الأزرق',
-    descEn:'Wakes with wolves. Appears as a Villager to the Seer on the first check only.',
-    descAr:'يستيقظ مع الذئاب. يظهر كقروي للعرّافة في الفحص الأول فقط.' },
+    descEn:'You wake with the wolf pack every night like a normal wolf. Your trick: the very first time the Seer checks you, they see Villager instead of Wolf. After that first check, the Seer sees your true Wolf identity. If the Seer checks you early and tells the village you are safe, you gain huge undeserved trust — use that window to blend in and redirect suspicion.',
+    descAr:'تستيقظ مع الذئاب كل ليلة كذئب عادي. حيلتك: في المرة الأولى فقط التي تفحصك فيها العرّافة، ترى قرويًا بدل ذئب. بعد ذلك ترى هويتك الحقيقية. إذا فحصتك مبكراً وأخبرت القرية بأنك آمن، تكسب ثقة كبيرة غير مستحقة — استغل هذه الفرصة للاندماج وتحويل الشك.' },
 
   { id:'red_wolf',      emoji:'❤️', team:'Wolves',    wakes:true,  nightOrder:40,  defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Red Wolf',        nameAr:'الذئب الأحمر',
-    descEn:'Wakes with wolves, then wakes again to Abduct one player, blocking their power without killing them.',
-    descAr:'يستيقظ مع الذئاب، ثم يستيقظ مجددًا ليختطف لاعبًا ويمنع قدرته.' },
+    descEn:'You wake twice per night. First with the wolf pack for the kill vote. Then you wake alone to Abduct one player. That person cannot use their special power that night, and if they would normally wake for their role, they are told they have been abducted instead. This does NOT kill them. The confusion is huge: from the victim perspective, being abducted feels identical to being jailed by the Commissioner, so neither the victim nor anyone else knows who is responsible.',
+    descAr:'تستيقظ مرتين في الليلة. أولاً مع الذئاب للتصويت. ثم وحدك لاختطاف لاعب واحد. لا يستطيع المختطَف استخدام قدرته تلك الليلة. هذا لا يقتله. الارتباك ضخم: من منظور الضحية، الاختطاف يبدو مطابقاً تماماً للسجن من قبل المفوض، فلا الضحية ولا أي شخص آخر يعرف من المسؤول.' },
 
   { id:'white_wolf',    emoji:'🤍', team:'Wolves',    wakes:true,  nightOrder:60,  defaultCount:0, minCount:0, maxCount:1,
     nameEn:'White Wolf',      nameAr:'الذئب الأبيض',
-    descEn:'Wakes with wolves, then wakes again to optionally override the wolf kill and eliminate a wolf teammate instead.',
+    descEn:'You wake twice per night. First with all wolves to vote on a target. Then you wake alone and face a choice: do nothing and let the regular wolf kill happen, or override it and kill one of your own wolf teammates instead, cancelling the regular kill that night. After using this power you wait 2 nights before using it again. Remove a wolf who is close to being caught, gain the village trust by appearing to stop a kill, or sacrifice a weak wolf to protect yourself.',
     descAr:'يستيقظ مع الذئاب، ثم يستيقظ مجددًا ليلغي القتل ويزيل زميلًا ذئبًا.' },
 
   { id:'alpha_wolf',    emoji:'👑', team:'Wolves',    wakes:true,  nightOrder:130, defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Alpha Wolf',      nameAr:'الذئب الألفا',
-    descEn:'Wakes with wolves. Can sacrifice himself any night to counter the Hunting Dog.',
-    descAr:'يستيقظ مع الذئاب. يمكنه التضحية بنفسه أي ليلة لمواجهة كلب الصيد.' },
+    descEn:'You wake every night with the wolf pack for the kill vote. Your special power: you can Suicide on any night, and can even kill a target AND suicide the same night. If you suicide next to the Hunting Dog (adjacent right), the Hunting Dog dies and pulls the next villager to their right down too, a chain kill. If the Hunting Dog correctly guesses you, you wake up, witness the result, then fall asleep — suicide replaces any further actions. The most dangerous wolf role in the game. Timing your suicide is everything.',
+    descAr:'تستيقظ كل ليلة مع الذئاب. قدرتك: تستطيع الانتحار أي ليلة، بل يمكنك قتل هدف والانتحار في نفس الليلة. إذا انتحرت بجانب كلب الصيد، يموت كلب الصيد ويجر معه القروي التالي على يمينه. إذا خمّن كلب الصيد بشكل صحيح، تستيقظ وترى النتيجة ثم تنام. أخطر دور ذئب في اللعبة. توقيت انتحارك هو كل شيء.' },
 
   // ─── VILLAGERS ───
   { id:'villager',      emoji:'👤', team:'Villagers', wakes:false, nightOrder:null, defaultCount:3, minCount:0, maxCount:12,
     nameEn:'Simple Villager', nameAr:'القروي العادي',
-    descEn:'No special power. Uses logic and observation to identify the wolves.',
-    descAr:'لا قدرة خاصة. يستخدم المنطق والملاحظة.' },
+    descEn:'You have no special ability — but you are not powerless. Every night someone dies, and every day the village votes to eliminate a suspect. Your job: watch carefully. Who reacted strangely? Who pushed too hard for a vote? Who stayed quiet when they should have spoken? Share your reasoning, question others, and work together. The village wins or loses based on how well players like you think.',
+    descAr:'ليس لديك قدرة خاصة — لكنك لست عاجزاً. كل ليلة يموت شخص ما، وكل نهار تصوت القرية على استبعاد مشتبه به. مهمتك: راقب بدقة. من تصرف بشكل غريب؟ من دفع بقوة نحو تصويت معين؟ من بقي صامتاً حين كان يجب أن يتكلم؟ شارك تفكيرك، وتعاون.' },
 
   { id:'witch',         emoji:'🧙', team:'Villagers', wakes:true,  nightOrder:80,  defaultCount:1, minCount:0, maxCount:1,
     nameEn:'Witch',           nameAr:'الساحرة',
-    descEn:'Has 1 revive potion and 1 kill potion. Sees the wolf target. Cannot use kill on Night 1.',
-    descAr:'لديها جرعة إحياء وقتل. ترى هدف الذئاب. لا قتل في الليلة الأولى.' },
+    descEn:'Every night you wake up and are shown who the wolves just killed. You have two decisions: use your Revive potion to save that person, and/or use your Kill potion on any player you choose. You start with exactly 1 of each — once used, gone forever. You can use both the same night. You can revive yourself. You cannot use kill on Night 1. You see the wolf kill after the White Wolf may have changed it, but you do NOT see kills from Alpha Wolf suicide.',
+    descAr:'كل ليلة تستيقظين ويُريك المضيف من قتلته الذئاب للتو. لديك قراران: استخدام جرعة الإحياء لإنقاذ ذلك الشخص، و/أو استخدام جرعة القتل على أي لاعب. تبدئين بجرعة واحدة من كل — بعد استخدامها تختفي إلى الأبد. يمكنك استخدام الاثنتين في نفس الليلة. يمكنك إحياء نفسك. لا يمكن استخدام القتل في الليلة الأولى. ترين القتل بعد تغيير الذئب الأبيض، لكن لا ترين قتل انتحار الذئب الألفا.' },
 
   { id:'saving',        emoji:'🛡️', team:'Villagers', wakes:true,  nightOrder:70,  defaultCount:1, minCount:0, maxCount:1,
     nameEn:'Saving',          nameAr:'المنقذ',
-    descEn:'Protects one player from all kills each night. Cannot protect the same player two nights in a row.',
-    descAr:'يحمي لاعبًا من جميع حالات القتل. لا يحمي نفس الشخص ليلتين متتاليتين.',
+    descEn:'Each night you choose one player to protect. If any kill is attempted on them that night — wolves, Witch poison, anything — they survive. You can protect yourself. You cannot protect the same person two nights in a row, so you must alternate. You get no feedback on whether your target was actually attacked. The challenge is guessing who the wolves will go for before they do it.',
+    descAr:'كل ليلة تختار لاعباً لحمايته. إذا تعرض لأي محاولة قتل تلك الليلة — الذئاب، سم الساحرة، أي شيء — ينجو. يمكنك حماية نفسك. لا يمكنك حماية نفس الشخص ليلتين متتاليتين، لذا يجب التناوب. لا تتلقى أي معلومة حول ما إذا تعرض هدفك للهجوم فعلاً. التحدي: تخمين من ستستهدفه الذئاب قبل أن تفعل.',
     interactive: true, abilityLabel: 'Protect 🛡️', abilityTag: 'protected' },
 
   { id:'seer',          emoji:'🔮', team:'Villagers', wakes:true,  nightOrder:90,  defaultCount:1, minCount:0, maxCount:1,
     nameEn:'Seer',            nameAr:'العرّافة',
-    descEn:'Checks one player\'s true role each night. Beware the Blue Wolf on first check.',
-    descAr:'تفحص دور لاعب واحد كل ليلة.' },
+    descEn:'Every night you point at one player and the host secretly tells you their true role. You are the most powerful information role in the game — if used well, you can identify wolves and guide the village to victory. One trap: the Blue Wolf shows as Villager on your very first check of them only. After that they show as Wolf. Share your findings carefully: the wolves will eliminate you the moment you reveal yourself.',
+    descAr:'كل ليلة تشيرين إلى لاعب واحد ويخبرك المضيف سراً بدوره الحقيقي. أنت الدور المعلوماتي الأقوى في اللعبة. فخ واحد: الذئب الأزرق يظهر كقروي في فحصك الأول فقط. بعده يظهر كذئب. شاركي نتائجك بحذر: الذئاب ستحاول إزالتك فور كشف نفسك.' },
 
   { id:'hunter',        emoji:'🏹', team:'Villagers', wakes:false, nightOrder:null, defaultCount:1, minCount:0, maxCount:2,
     nameEn:'Hunter',          nameAr:'الصياد',
-    descEn:'On death, immediately shoots and kills one player of choice.',
-    descAr:'عند الموت، يطلق النار ويقتل لاعبًا من اختياره.' },
+    descEn:'You never wake at night. But the moment you die — killed by wolves, poisoned by the Witch, or voted out by the village — you immediately shoot and kill one player of your choice. Choose who. This makes you a dangerous target: wolves know eliminating you costs them a player too. Even if voted out during the day, you fire your shot before leaving. Pick wisely — it could decide the game.',
+    descAr:'أنت لا تستيقظ ليلاً. لكن في اللحظة التي تموت — قتلتك الذئاب، سمّتك الساحرة، أو طردتك القرية — تطلق فوراً النار وتقتل لاعباً من اختيارك. هذا يجعلك هدفاً خطيراً: الذئاب تعلم أن قتلك يكلفها لاعباً أيضاً. اختر بحكمة — قد تحسم اللعبة.' },
 
   { id:'commissioner',  emoji:'⚖️', team:'Villagers', wakes:true,  nightOrder:30,  defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Commissioner',    nameAr:'المفوض',
-    descEn:'Jails one player: protected from kills AND powers blocked. Cannot jail the same person twice in a row.',
-    descAr:'يسجن لاعبًا: يُحمى ويُحجب. لا يعيد سجن نفس الشخص.' },
+    descEn:'Each night you choose one player to Jail. Jailing does two things: it protects them from all kills that night, AND it blocks their special power. The jailed player is told they were abducted if they would normally wake up. Cannot jail the same person twice in a row. Key strategic layer: from the target perspective, being jailed feels identical to being abducted by the Red Wolf — so no one knows who is responsible. You can jail villagers to protect them, or wolves to block their abilities.',
+    descAr:'كل ليلة تختار لاعباً لسجنه. السجن يفعل شيئين: يحميه من جميع عمليات القتل تلك الليلة، ويحجب قدرته الخاصة. يُبلّغ اللاعب المسجون بأنه اختُطف. لا يمكن سجن نفس الشخص مرتين متتاليتين. من منظور الهدف، السجن يبدو مطابقاً تماماً للاختطاف من الذئب الأحمر. يمكنك سجن قرويين لحمايتهم، أو ذئاب لحجب قدراتهم.' },
 
   { id:'knight',        emoji:'⚔️', team:'Villagers', wakes:false, nightOrder:null, defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Knight',          nameAr:'الفارس',
-    descEn:'Passive: on death, kills the closest living wolf to the right in seating order.',
-    descAr:'سلبي: عند الموت يقتل أقرب ذئب حي على اليمين.' },
+    descEn:'You never wake at night — no active ability. But when you die for any reason, you automatically kill the nearest wolf sitting to your right in the original seating order. If the player immediately to your right is not a wolf, it skips them and finds the next wolf to the right. Seating is fixed from the very start. This invisible passive threat means wolves must think carefully about sitting near you.',
+    descAr:'لا تستيقظ ليلاً وليس لديك قدرة نشطة. لكن عند موتك لأي سبب، تقتل تلقائياً أقرب ذئب جالس على يمينك في دائرة الجلوس الأصلية. إذا كان الشخص مباشرةً على يمينك ليس ذئباً، تتجاوزه وتجد التالي. ترتيب الجلوس ثابت من البداية تماماً.' },
 
   { id:'servant',       emoji:'🍺', team:'Villagers', wakes:true,  nightOrder:110, defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Servant',         nameAr:'الخادم',
-    descEn:'Makes one player Drunk each night: they can speak but cannot vote.',
-    descAr:'يجعل لاعبًا سكرانًا كل ليلة: يتكلم لكن لا يصوت.',
+    descEn:'Each night you choose one player to make Drunk. The next day they can talk and debate as normal — but they cannot cast a vote. A drunk Mayor loses their double vote but keeps order control. Cannot target jailed players. Use this to stop a suspected wolf from swinging a vote, neutralize an influential Mayor, or block someone you know is being manipulated.',
+    descAr:'كل ليلة تختار لاعباً لجعله سكراناً. في اليوم التالي يستطيع الكلام والجدال بشكل طبيعي — لكن لا يستطيع التصويت. العمدة السكران يفقد تصويته المزدوج لكن يحتفظ بالتحكم في النقاش. لا يمكن استهداف لاعب مسجون.',
     interactive: true, abilityLabel: 'Drunk 🍺', abilityTag: 'drunk' },
 
   { id:'supplier',      emoji:'📦', team:'Villagers', wakes:true,  nightOrder:75,  defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Supplier',        nameAr:'المزوّد',
-    descEn:'Searches for the Witch. When found, gives +1 revive and +1 kill potion. Stops waking after.',
-    descAr:'يبحث عن الساحرة. عند العثور عليها يمنحها جرعات إضافية.' },
+    descEn:'Every night you wake up and the host checks whether you have found the Witch. Once you do, you give her one extra Revive and one extra Kill potion, doubling her power from 1+1 to 2+2. After that handoff you stop waking entirely. If the Witch dies before you find her (and Roles Declaration is off), you keep waking every night searching in vain. Your entire purpose is finding and empowering the Witch — simple but potentially game-changing.',
+    descAr:'كل ليلة تستيقظ ويتحقق المضيف مما إذا وجدت الساحرة. بمجرد العثور عليها، تمنحها جرعة إحياء إضافية وجرعة قتل إضافية، مضاعفاً قدرتها من 1+1 إلى 2+2. بعدها تتوقف عن الاستيقاظ نهائياً. هدفك كله إيجاد الساحرة وتمكينها — بسيط لكن يمكن أن يغيّر مجرى اللعبة.' },
 
   { id:'hunting_dog',   emoji:'🐕', team:'Villagers', wakes:true,  nightOrder:120, defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Hunting Dog',     nameAr:'كلب الصيد',
-    descEn:'Rival of Alpha Wolf. Can sacrifice himself to guess the Alpha Wolf. Correct = both die, wrong = only Hunting Dog dies.',
-    descAr:'منافس الذئب الألفا. يمكنه التضحية لتخمين الألفا. صحيح = يموتان، خاطئ = يموت كلب الصيد فقط.' },
+    descEn:'You are the direct counter to the Alpha Wolf. You act before them in the night order, meaning you get first strike. You can sacrifice yourself to name one player as the Alpha Wolf: if correct, both you and the Alpha Wolf die — a huge trade. If wrong, only you die. This is all-or-nothing: a wrong guess wastes your role entirely, but a correct guess eliminates the most dangerous wolf in the game before they can ever act.',
+    descAr:'أنت المواجه المباشر للذئب الألفا. تتصرف قبله في ترتيب الليل، أي تضرب أولاً. يمكنك التضحية بنفسك وتسمية لاعب كذئب ألفا: إن كنت محقاً يموت كلاكما — صفقة ضخمة. إن كنت مخطئاً، تموت أنت فقط. مقامرة كل شيء أو لا شيء: الخطأ يهدر دورك كلياً، والصحيح يزيل أخطر ذئب قبل أن يتصرف.' },
 
   { id:'ancient',       emoji:'👴', team:'Villagers', wakes:false, nightOrder:null, defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Ancient',         nameAr:'الشيخ',
-    descEn:'Immune to the first two kill attempts. If voted out, ALL villagers lose their special powers.',
-    descAr:'محصّن ضد أول محاولتي قتل. إذا طُرد بالتصويت، جميع القرويين يفقدون قدراتهم.' },
+    descEn:'You have a passive shield: the first two times any kill is attempted on you — wolves, Witch, anyone — you simply survive. Abduction and jailing do NOT use up a shield. The danger is your curse: if the village ever votes you out, your role is revealed AND every villager permanently loses their special power for the rest of the game. Wolves keep all abilities. The village must never vote you out even under suspicion — the cost is too catastrophic.',
+    descAr:'لديك درع سلبي: المرتين الأولى والثانية اللتين يحاول فيهما أي شخص قتلك — تنجو ببساطة. الاختطاف والسجن لا يستهلكان الدرع. الخطر يكمن في لعنتك: إذا صوتت القرية على طردك، يُكشف دورك ويفقد كل قروي قدرته الخاصة نهائياً. الذئاب تحتفظ بكل شيء. لا تستهدفه أبداً.' },
 
   // ─── SPECIAL ───
   { id:'cupid',         emoji:'💘', team:'Special',   wakes:true,  nightOrder:20,  defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Cupid',           nameAr:'كيوبيد',
-    descEn:'Night 1 only: links two players as Lovers. Lovers know each other\'s roles and die together.',
-    descAr:'الليلة الأولى فقط: يربط لاعبَين كعاشقَين. يعرفان أدوار بعضهما ويموتان معًا.',
+    descEn:'On Night 1 only, you secretly choose any two players and link them as Lovers — you can even include yourself. The two lovers are privately told who the other is and their role. From that point, lovers have one win condition: they can only win if they are the last two players alive together, overriding everything else. If either dies, the other dies immediately too. Exception: if both players you link are wolves, the lovers win condition does not apply and they just play as normal wolves.',
+    descAr:'في الليلة الأولى فقط، تختار سراً أي لاعبين وتربطهما — يمكنك تضمين نفسك. يُبلّغ العاشقان بهوية ودور بعضهما سراً. من تلك اللحظة، شرط فوزهما: يفوزان فقط إذا كانا آخر لاعبين حيين معاً، متجاوزاً كل شيء آخر. إذا مات أحدهما، يموت الآخر فوراً. استثناء: إذا كلاهما ذئبان، لا تُطبّق حالة الفوز هذه.',
     interactive: true, abilityLabel: 'Link Lovers 💘' },
 
   { id:'wild_child',    emoji:'👶', team:'Special',   wakes:true,  nightOrder:10,  defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Wild Child',      nameAr:'الطفل البري',
-    descEn:'Nights 1-2: secretly chooses a father. If the father dies, Wild Child becomes a Wolf.',
-    descAr:'الليلتان 1-2: يختار أبًا سرًا. إذا مات الأب يصبح الطفل ذئبًا.',
+    descEn:'During Nights 1 and 2 you secretly choose one player as your father figure. Nothing changes immediately. But if your father dies at any point in the game, you immediately become a Simple Wolf and join the wolf team. Even if you pick the Alpha Wolf as father, you still become only a Simple Wolf. Choose someone who will survive a long time — or time the reveal strategically if you want to switch sides. You have two nights to decide.',
+    descAr:'خلال الليلتين 1 و 2 تختار سراً لاعباً أباً لك. لا يتغير شيء فوراً. لكن إذا مات أبوك في أي لحظة، تتحول فوراً إلى ذئب بسيط وتنضم للذئاب. اختر شخصاً من المرجح بقاؤه — لديك ليلتان للتقرير.',
     interactive: true, abilityLabel: 'Choose Father 👨' },
 
   { id:'schizophrenic', emoji:'🎭', team:'Special',   wakes:true,  nightOrder:115, defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Schizophrenic',   nameAr:'المتقلب',
-    descEn:'Nights 1-2: copies any chosen role (with fresh abilities). If copied role dies that night, becomes Villager.',
-    descAr:'الليلتان 1-2: ينسخ أي دور مختار. إذا مات المنسوخ تلك الليلة يصبح قرويًا.',
+    descEn:'During Nights 1 and 2 you can choose any role in the game to copy. You instantly gain that role full abilities as if assigned from the start, with a completely fresh set. One risk: if the player whose role you copied dies that same night, you lose the copied role and become a Simple Villager permanently. After Night 2 you keep whatever role you last copied. Great for doubling up on a key role like Seer or Witch when they seem in danger.',
+    descAr:'خلال الليلتين 1 و 2 يمكنك اختيار أي دور في اللعبة لنسخه. تكتسب فوراً قدراته كاملةً جديدة. خطر واحد: إذا مات اللاعب المنسوخ دوره تلك الليلة، تفقد الدور وتصبح قروياً بسيطاً للأبد. بعد الليلة 2 تحتفظ بآخر دور نسخته. رائع لمضاعفة دور حاسم كالعرّافة أو الساحرة حين يبدوان في خطر.',
     interactive: true, abilityLabel: 'Copy Role 🎭' },
 
   { id:'crow',          emoji:'🦅', team:'Special',   wakes:false, nightOrder:null, defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Crow',            nameAr:'الغراب',
-    descEn:'Day action: before the vote, secretly gives +2 votes against one chosen player.',
-    descAr:'أثناء النهار: يمنح +2 أصوات ضد لاعب مختار قبل التصويت.' },
+    descEn:'Unlike every other role, you act during the DAY not at night. Before the village vote begins, secretly tell the host to place +2 extra votes on one specific player. When counting starts, that player silently begins with 2 votes already against them, which can easily tip a close vote into an elimination. You can target the same person multiple days in a row. You cannot target yourself. Nobody knows the Crow exists or who they target unless you reveal yourself.',
+    descAr:'على عكس كل الأدوار الأخرى، تتصرف أثناء النهار وليس الليل. قبل بدء التصويت، أخبر المضيف سراً بوضع +2 صوت إضافي ضد لاعب محدد. عند بدء العد، يبدأ ذلك اللاعب بتصويتين ضده بصمت، مما يحسم بسهولة تصويتاً متقارباً. يمكنك استهداف نفس الشخص أياماً متتالية. لا أحد يعلم بوجودك إلا إذا كشفت عن نفسك.' },
 ];
 
 // Night order sequence (all possible steps)
