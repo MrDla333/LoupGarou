@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DZ RESPAWN — Loup-Garou</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap');
+
+:root {
+  --gold: #d4af37;
+  --gold-dark: #8b6914;
+  --gold-light: #f0d060;
+  --gold-dim: rgba(212,175,55,0.12);
+  --crimson: #8b1a1a;
+  --crimson-bright: #cc2222;
+  --crimson-dim: rgba(139,26,26,0.2);
+  --night: #07090e;
+  --surface: #0e1118;
+  --surface2: #141820;
+  --surface3: #1a2030;
+  --border: #1e2535;
+  --border-bright: #2a3550;
+  --border-gold: #3a2e14;
+  --text: #e8dfc8;
+  --text-dim: #6a6558;
+  --text-mid: #a09880;
+  --wolf-red: #b03020;
+  --wolf-red-glow: rgba(176,48,32,0.35);
+  --village-blue: #2e6da4;
+  --village-blue-dim: rgba(46,109,164,0.15);
+  --green: #27ae60;
+  --step-h: 38px;
+  --col-gap: 16px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Crimson Pro', Georgia, serif;
+  background: var(--night);
+  color: var(--text);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse 60% 40% at 15% 10%, rgba(139,26,26,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 85% 90%, rgba(46,109,164,0.05) 0%, transparent 70%);
+  overflow-x: hidden;
+}
+
+/* ─── SCREENS ─── */
+.screen { display: none; }
+.screen.active { display: block; animation: fadeUp 0.3s ease; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+/* ═══════════════════════════════════
+   SETUP SCREEN
+═══════════════════════════════════ */
+.setup-wrap {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 16px 60px;
+}
+
+.setup-header {
+  text-align: center;
+  padding: 36px 20px 28px;
+  position: relative;
+  margin-bottom: 4px;
+}
+.setup-header::after {
+  content: '';
+  display: block;
+  width: 200px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  margin: 20px auto 0;
+}
+
+.brand {
+  font-family: 'Cinzel', serif;
+  font-size: 0.72em;
+  letter-spacing: 8px;
+  color: var(--gold-dark);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.brand.small { font-size: 0.6em; letter-spacing: 5px; }
+
+.setup-header h1 {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.8em, 5vw, 3em);
+  color: var(--gold);
+  text-shadow: 0 0 40px rgba(212,175,55,0.3), 0 2px 6px #000;
+  letter-spacing: 2px;
+  line-height: 1.15;
+}
+.subtitle {
+  font-style: italic;
+  color: var(--text-dim);
+  margin-top: 8px;
+  font-size: 1em;
+}
+
+/* ─── CARD ─── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.card-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.78em;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.card-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--border-gold), transparent);
+}
+
+/* ─── BUTTONS ─── */
+.btn {
+  font-family: 'Cinzel', serif;
+  font-size: 0.72em;
+  letter-spacing: 1px;
+  padding: 9px 20px;
+  border-radius: 30px;
+  border: 1px solid var(--border-bright);
+  background: var(--surface2);
+  color: var(--text-mid);
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.btn:hover:not(:disabled) { border-color: var(--gold-dark); color: var(--gold); background: var(--gold-dim); }
+.btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn.primary {
+  background: var(--gold);
+  color: #000;
+  border-color: var(--gold);
+  font-weight: 700;
+  font-size: 0.8em;
+  padding: 11px 28px;
+}
+.btn.primary:hover:not(:disabled) { background: var(--gold-light); }
+.btn.danger { border-color: var(--crimson); color: #ff7777; }
+.btn.danger:hover:not(:disabled) { background: var(--crimson-dim); }
+.btn.success { border-color: #27ae60; color: #5ed98a; }
+.btn.success:hover:not(:disabled) { background: rgba(39,174,96,0.12); }
+.btn.small { padding: 6px 14px; font-size: 0.65em; }
+
+/* ─── ADD ROW ─── */
+.add-row { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.add-row input {
+  flex: 1;
+  min-width: 160px;
+  padding: 9px 16px;
+  border-radius: 30px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  font-family: 'Crimson Pro', serif;
+  font-size: 1em;
+  outline: none;
+  transition: border-color 0.18s;
+}
+.add-row input:focus { border-color: var(--gold-dark); box-shadow: 0 0 0 2px rgba(212,175,55,0.1); }
+.add-row input::placeholder { color: var(--text-dim); }
+
+/* ─── PLAYER TAGS (setup) ─── */
+.players-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 48px;
+  background: var(--surface2);
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  align-items: center;
+}
+.p-tag {
+  background: var(--surface3);
+  color: var(--text);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.p-tag-num {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65em;
+  color: var(--gold-dark);
+  background: var(--gold-dim);
+  padding: 1px 5px;
+  border-radius: 8px;
+}
+.p-tag-del { color: #ff6060; cursor: pointer; font-size: 1em; }
+.p-tag-del:hover { color: #ff0000; }
+.empty-hint { color: var(--text-dim); font-style: italic; font-size: 0.9em; }
+
+/* ─── ROLES LIST (setup) ─── */
+.role-group-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65em;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  padding: 10px 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.role-group-title.wolves { color: var(--wolf-red); }
+.role-group-title.villagers { color: var(--village-blue); }
+.role-group-title.special { color: #a070d0; }
+.role-group-title::after { content: ''; flex: 1; height: 1px; background: currentColor; opacity: 0.18; }
+
+.role-row {
+  display: flex;
+  align-items: center;
+  padding: 9px 10px;
+  border-radius: 8px;
+  transition: background 0.15s;
+  gap: 10px;
+}
+.role-row:hover { background: var(--surface2); }
+.role-emoji { font-size: 1.35em; min-width: 34px; text-align: center; }
+.role-meta { flex: 1; min-width: 0; }
+.role-name-en { font-family: 'Cinzel', serif; font-size: 0.78em; color: var(--gold); letter-spacing: 0.5px; }
+.role-name-ar { font-size: 0.82em; color: var(--text-dim); direction: rtl; }
+.role-team-badge {
+  font-size: 0.58em;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.badge-wolves   { background: rgba(176,48,32,0.2);  color: #ff9080; border: 1px solid var(--wolf-red); }
+.badge-villagers{ background: rgba(46,109,164,0.15); color: #80b0e0; border: 1px solid #2e5080; }
+.badge-special  { background: rgba(160,112,208,0.15);color: #c090f0; border: 1px solid #7040a0; }
+
+.role-desc-btn {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.68em;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.role-desc-btn:hover { border-color: var(--gold-dark); color: var(--gold); background: var(--gold-dim); }
+
+.role-controls { display: flex; align-items: center; gap: 6px; }
+.rc-btn {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 1em;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+  line-height: 1;
+}
+.rc-btn:hover:not(:disabled) { border-color: var(--gold-dark); color: var(--gold); }
+.rc-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+.rc-count { min-width: 24px; text-align: center; font-family: 'Cinzel', serif; font-size: 0.95em; color: var(--gold); font-weight: 700; }
+
+/* ─── STATS ─── */
+.stats-strip {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 14px 0;
+  padding: 14px 16px;
+  background: var(--surface);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  justify-content: space-around;
+}
+.stat-cell { text-align: center; }
+.stat-label { display: block; font-family: 'Cinzel', serif; font-size: 0.58em; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; }
+.stat-val { display: block; font-family: 'Cinzel Decorative', serif; font-size: 1.5em; color: var(--gold); line-height: 1.2; }
+.stat-val.bad { color: #ff6b6b; }
+.stat-val.good { color: #5ed98a; }
+
+.ctrl-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 14px 0; }
+
+/* ─── ALERTS ─── */
+.alert { padding: 10px 14px; border-radius: 8px; margin: 8px 0; font-size: 0.9em; }
+.alert-err  { background: rgba(139,26,26,0.25); border: 1px solid var(--crimson); color: #ff9090; }
+.alert-ok   { background: rgba(39,174,96,0.12); border: 1px solid #27ae60; color: #7edca5; }
+.alert-info { background: rgba(46,109,164,0.12); border: 1px solid var(--village-blue); color: #90c0ff; }
+
+/* ─── GUIDE ─── */
+.guide-filter { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.filter-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 0.62em;
+  letter-spacing: 1px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.15s;
+}
+.filter-btn.active { border-color: var(--gold-dark); color: var(--gold); background: var(--gold-dim); }
+.filter-btn:hover:not(.active) { color: var(--text-mid); }
+
+.guide-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.guide-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  transition: border-color 0.2s;
+}
+.guide-card:hover { border-color: var(--border-bright); }
+.guide-card-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.guide-card-emoji { font-size: 1.5em; }
+.guide-card-name-en { font-family: 'Cinzel', serif; font-size: 0.75em; color: var(--gold); font-weight: 600; }
+.guide-card-name-ar { font-size: 0.78em; color: var(--text-dim); direction: rtl; }
+.guide-card-desc-en { font-size: 0.87em; line-height: 1.5; color: var(--text); margin-bottom: 6px; }
+.guide-card-desc-ar { font-size: 0.87em; line-height: 1.6; color: var(--text-dim); direction: rtl; text-align: right; }
+
+/* ═══════════════════════════════════
+   GAME SCREEN
+═══════════════════════════════════ */
+#gameScreen {
+  display: none;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+#gameScreen.active {
+  display: flex;
+}
+
+/* ─── GAME HEADER ─── */
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.game-header-left { display: flex; flex-direction: column; gap: 2px; }
+.night-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.82em;
+  color: var(--gold);
+  letter-spacing: 1px;
+}
+.game-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1em, 3vw, 1.4em);
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(212,175,55,0.3);
+  letter-spacing: 2px;
+}
+.game-header-right { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ─── COLUMNS WRAP ─── */
+.columns-wrap {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  gap: 0;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.col-players {
+  width: 340px;
+  min-width: 260px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.col-night {
+  flex: 1;
+  background: var(--night);
+}
+
+.col-header {
+  padding: 12px 16px 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-shrink: 0;
+  background: var(--surface);
+}
+.col-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7em;
+  letter-spacing: 4px;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+.col-subtitle { font-size: 0.78em; color: var(--text-dim); font-style: italic; }
+
+/* scrollable inner areas */
+#playerList, #nightOrderEl {
+  overflow-y: auto;
+  flex: 1;
+  padding: 10px 0;
+}
+
+/* ─── PLAYER CARDS ─── */
+.player-card {
+  display: flex;
+  align-items: flex-start;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  gap: 10px;
+  transition: background 0.15s;
+  position: relative;
+}
+.player-card:hover { background: var(--surface2); }
+.player-card.dead {
+  opacity: 0.38;
+  background: rgba(139,26,26,0.05);
+}
+.player-card.dead .player-card-role { color: var(--text-dim); }
+
+.player-dead-btn {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 5px;
+  transition: all 0.2s;
+  box-shadow: 0 0 0 2px transparent;
+}
+.player-dead-btn.alive { background: var(--green); box-shadow: 0 0 8px rgba(39,174,96,0.6); }
+.player-dead-btn.dead  { background: var(--wolf-red); box-shadow: 0 0 8px var(--wolf-red-glow); }
+.player-dead-btn:hover { transform: scale(1.3); }
+
+.player-card-body { flex: 1; min-width: 0; }
+.player-card-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85em;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.player-card-role {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88em;
+  color: var(--text);
+  flex-wrap: wrap;
+}
+.player-role-name { font-weight: 600; }
+.player-role-ar { color: var(--text-dim); font-style: italic; direction: rtl; font-size: 0.9em; }
+
+/* status tags */
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.68em;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  margin-top: 4px;
+}
+.tag-dead      { background: rgba(176,48,32,0.25); border: 1px solid var(--wolf-red); color: #ff9090; }
+.tag-love      { background: rgba(200,50,100,0.2);  border: 1px solid #c03060; color: #ff90b0; }
+.tag-drunk     { background: rgba(180,120,20,0.2);  border: 1px solid #8b6010; color: #e0b060; }
+.tag-protected { background: rgba(46,109,164,0.2);  border: 1px solid #2e5080; color: #80b0e0; }
+.tag-silenced  { background: rgba(80,60,100,0.3);   border: 1px solid #504070; color: #b090d0; }
+.tag-wolf-turn { background: rgba(176,48,32,0.2);   border: 1px solid var(--wolf-red); color: #ff9070; }
+
+/* action button on player card */
+.player-action-btn {
+  font-size: 0.62em;
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.5px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.player-action-btn:hover { border-color: var(--gold-dark); color: var(--gold); background: var(--gold-dim); }
+
+/* ─── NIGHT ORDER ─── */
+.night-step {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  height: var(--step-h);
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.night-step::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: transparent;
+  transition: background 0.2s;
+}
+.night-step.active::before { background: var(--gold); }
+.night-step.active { background: rgba(212,175,55,0.06); }
+.night-step.active.wolf-step { background: rgba(176,48,32,0.08); }
+.night-step.active.wolf-step::before { background: var(--wolf-red); }
+.night-step:hover { background: var(--surface2); }
+
+.night-step-num {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6em;
+  color: var(--text-dim);
+  min-width: 20px;
+  text-align: right;
+}
+.night-step-emoji { font-size: 1.05em; min-width: 24px; text-align: center; }
+.night-step-meta { flex: 1; min-width: 0; }
+.night-step-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.72em;
+  color: var(--text-mid);
+  letter-spacing: 0.5px;
+}
+.night-step.active .night-step-name { color: var(--gold-light); font-size: 0.75em; }
+.night-step.active.wolf-step .night-step-name { color: #ff9070; }
+.night-step-name-ar { display: none; }
+.night-step-players {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 3px;
+  align-items: center;
+  justify-content: flex-end;
+  max-width: 45%;
+}
+.night-step-player-tag {
+  font-size: 0.6em;
+  padding: 1px 7px;
+  border-radius: 8px;
+  font-family: 'Cinzel', serif;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-mid);
+  white-space: nowrap;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.night-step-player-tag.wolf-tag { background: rgba(176,48,32,0.15); border-color: var(--wolf-red); color: #ff9080; }
+
+.night-step-advance {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text-dim);
+  font-size: 0.75em;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.night-step.active .night-step-advance { border-color: var(--gold-dark); color: var(--gold); }
+.night-step-advance:hover { background: var(--gold-dim); border-color: var(--gold-dark); color: var(--gold); }
+
+/* current step big indicator */
+.current-step-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.csb-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.62em;
+  letter-spacing: 3px;
+  color: var(--gold-dark);
+  text-transform: uppercase;
+}
+.csb-step {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85em;
+  color: var(--gold-light);
+  flex: 1;
+}
+.csb-btns { display: flex; gap: 6px; }
+
+/* ─── MODAL ─── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.78);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+  padding: 20px;
+  backdrop-filter: blur(6px);
+  animation: fadeUp 0.2s ease;
+}
+.modal-overlay.hidden { display: none; }
+.modal-box {
+  background: var(--surface);
+  border: 1px solid var(--border-bright);
+  border-radius: 18px;
+  padding: 28px;
+  max-width: 460px;
+  width: 100%;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.9), 0 0 0 1px rgba(212,175,55,0.08);
+  position: relative;
+  animation: fadeUp 0.2s ease;
+}
+.modal-close {
+  position: absolute; top: 12px; right: 14px;
+  background: none; border: none; color: var(--text-dim);
+  font-size: 1.2em; cursor: pointer;
+  transition: color 0.15s;
+}
+.modal-close:hover { color: var(--text); }
+.modal-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1em;
+  color: var(--gold);
+  margin-bottom: 16px;
+  padding-right: 30px;
+  letter-spacing: 1px;
+}
+.modal-body { }
+.modal-body p { font-size: 0.9em; color: var(--text-mid); margin-bottom: 14px; font-style: italic; }
+
+/* modal player select list */
+.modal-select-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.modal-player-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.95em;
+}
+.modal-player-row:hover { border-color: var(--gold-dark); background: var(--gold-dim); color: var(--gold); }
+.modal-player-row.selected { border-color: var(--gold); background: var(--gold-dim); color: var(--gold); }
+.modal-player-row.disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+.mpr-name { font-weight: 600; flex: 1; }
+.mpr-role { font-size: 0.85em; color: var(--text-dim); }
+
+/* modal role grid (for schizo) */
+.modal-role-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.modal-role-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 0.82em;
+}
+.modal-role-option:hover { border-color: var(--gold-dark); background: var(--gold-dim); color: var(--gold); }
+
+.modal-confirm-btn {
+  width: 100%;
+  margin-top: 14px;
+  padding: 10px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.78em;
+  letter-spacing: 1px;
+  border-radius: 10px;
+  border: 1px solid var(--gold-dark);
+  background: var(--gold);
+  color: #000;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.modal-confirm-btn:hover { background: var(--gold-light); }
+.modal-confirm-btn:disabled { opacity: 0.35; cursor: not-allowed; background: var(--gold-dark); color: #555; }
+
+/* ─── COPY SECTION ─── */
+.copy-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-top: 10px;
+}
+.assign-copy-btn {
+  font-size: 0.62em;
+  font-family: 'Cinzel', serif;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.assign-copy-btn:hover { border-color: var(--gold-dark); color: var(--gold); background: var(--gold-dim); }
+.assign-copy-btn.copied { border-color: #27ae60; color: #5ed98a; background: rgba(39,174,96,0.1); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 640px) {
+  .col-players { width: 100%; border-right: none; border-bottom: 1px solid var(--border); min-height: 40vh; max-height: 40vh; }
+  .columns-wrap { flex-direction: column; }
+  .col-night { min-height: 50vh; }
+  .guide-grid { grid-template-columns: 1fr; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ══════════ SETUP SCREEN ══════════ -->
+<div id="setupScreen" class="screen active">
+  <div class="setup-wrap">
+    <div class="setup-header">
+      <div class="brand">DZ RESPAWN</div>
+      <h1>🐺 LOUP-GAROU 🐺</h1>
+      <p class="subtitle">Générateur de rôles — مولّد الأدوار</p>
+    </div>
+
+    <!-- Players -->
+    <div class="card">
+      <div class="card-title">👥 Joueurs — اللاعبون</div>
+      <div class="add-row">
+        <input type="text" id="playerInput" placeholder="Nom du joueur / اسم اللاعب" maxlength="24" autocomplete="off">
+        <button class="btn" onclick="addPlayer()">➕</button>
+      </div>
+      <div class="players-tags" id="playersTags">
+        <span class="empty-hint">Aucun joueur ajouté</span>
+      </div>
+    </div>
+
+    <!-- Roles -->
+    <div class="card">
+      <div class="card-title">🎭 Rôles — الأدوار</div>
+      <div id="rolesListEl"></div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-strip">
+      <div class="stat-cell"><span class="stat-label">Joueurs</span><span class="stat-val" id="statPlayers">0</span></div>
+      <div class="stat-cell"><span class="stat-label">Rôles</span><span class="stat-val" id="statRoles">0</span></div>
+      <div class="stat-cell"><span class="stat-label">Loups 🐺</span><span class="stat-val" id="statWolves">0</span></div>
+      <div class="stat-cell"><span class="stat-label">Écart</span><span class="stat-val" id="statDiff">0</span></div>
+    </div>
+    <div id="alertEl"></div>
+
+    <div class="ctrl-row">
+      <button class="btn primary" id="assignBtn" onclick="assignAndStart()">🎲 Distribuer & Commencer</button>
+      <button class="btn danger" onclick="resetAll()">🔄 Reset</button>
+    </div>
+
+    <!-- Guide -->
+    <div class="card" style="margin-top:20px;">
+      <div class="card-title">📖 Guide des Rôles — دليل الأدوار</div>
+      <div class="guide-filter">
+        <button class="filter-btn active" onclick="filterGuide('all',this)">Tous</button>
+        <button class="filter-btn" onclick="filterGuide('Wolves',this)">🐺 Loups</button>
+        <button class="filter-btn" onclick="filterGuide('Villagers',this)">🏘️ Villageois</button>
+        <button class="filter-btn" onclick="filterGuide('Special',this)">✨ Spéciaux</button>
+      </div>
+      <div class="guide-grid" id="guideGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ GAME SCREEN ══════════ -->
+<div id="gameScreen" class="screen">
+
+  <div class="game-header">
+    <div class="game-header-left">
+      <div class="brand small">DZ RESPAWN</div>
+      <div class="night-label" id="nightLabel">Nuit 1 — الليلة ١</div>
+    </div>
+    <div class="game-header-center">
+      <span class="game-title">🐺 LOUP-GAROU</span>
+    </div>
+    <div class="game-header-right">
+      <button class="btn small" onclick="goSetup()">⚙ Config</button>
+      <button class="btn small success" onclick="nextNight()">🌙 Nuit +1</button>
+    </div>
+  </div>
+
+  <div class="columns-wrap">
+
+    <!-- COLUMN 1: Players -->
+    <div class="column col-players">
+      <div class="col-header">
+        <span class="col-title">JOUEURS</span>
+        <span class="col-subtitle" id="aliveCount"></span>
+      </div>
+      <div id="playerList"></div>
+    </div>
+
+    <!-- COLUMN 2: Night Order -->
+    <div class="column col-night">
+      <div class="col-header">
+        <span class="col-title">ORDRE DE NUIT</span>
+        <span class="col-subtitle">ترتيب الليل</span>
+      </div>
+      <div id="nightOrderEl"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ MODAL ══════════ -->
+<div class="modal-overlay hidden" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal-box" id="modalBox">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title" id="modalTitle"></div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  DATA — ROLES
+// ═══════════════════════════════════════════════════════
+const ROLES = [
+  // ─── WOLVES ───
+  { id:'simple_wolf',   emoji:'🐺', team:'Wolves',    wakes:true,  nightOrder:50,  defaultCount:2, minCount:0, maxCount:8,
+    nameEn:'Simple Wolf',     nameAr:'الذئب العادي',
+    descEn:'Wakes each night with the wolf pack to vote on a target. Stays hidden by day.',
+    descAr:'يستيقظ كل ليلة مع مجموعة الذئاب للتصويت على هدف.' },
+
+  { id:'black_wolf',    emoji:'🖤', team:'Wolves',    wakes:true,  nightOrder:100, defaultCount:0, minCount:0, maxCount:1,
+    nameEn:'Black Wolf',      nameAr:'الذئب الأسود',
+    descEn:'Wakes with wolves (All Wolves), then wakes again to Silence one player who cannot speak the following day.',
+    descAr:'يستيقظ مع الذئاب، ثم يستيقظ مجددًا ليُسكت لاعبًا لا يستطيع الكلام في اليوم التالي.',
+    interactive: true, abilityLabel: 'Silence 🔇', abilityTag: 'silenced' },
+
+  { id:'blue_wolf',     emoji:'💙', team:'Wolves',    wakes:true,  nightOrder:50,  defaultCount:0, minCount:0, maxCount:1,
+    nameEn:'Blue Wolf',       nameAr:'الذئب الأزرق',
+    descEn:'Wakes with wolves. Appears as a Villager to the Seer on the first check only.',
+    descAr:'يستيقظ مع الذئاب. يظهر كقروي للعرّافة في الفحص الأول فقط.' },
+
+  { id:'red_wolf',      emoji:'❤️', team:'Wolves',    wakes:true,  nightOrder:40,  defaultCount:0, minCount:0, maxCount:1,
+    nameEn:'Red Wolf',        nameAr:'الذئب الأحمر',
+    descEn:'Wakes with wolves, then wakes again to Abduct one player, blocking their power without killing them.',
+    descAr:'يستيقظ مع الذئاب، ثم يستيقظ مجددًا ليختطف لاعبًا ويمنع قدرته.' },
+
+  { id:'white_wolf',    emoji:'🤍', team:'Wolves',    wakes:true,  nightOrder:60,  defaultCount:0, minCount:0, maxCount:1,
+    nameEn:'White Wolf',      nameAr:'الذئب الأبيض',
+    descEn:'Wakes with wolves, then wakes again to optionally override the wolf kill and eliminate a wolf teammate instead.',
+    descAr:'يستيقظ مع الذئاب، ثم يستيقظ مجددًا ليلغي القتل ويزيل زميلًا ذئبًا.' },
+
+  { id:'alpha_wolf',    emoji:'👑', team:'Wolves',    wakes:true,  nightOrder:130, defaultCount:0, minCount:0, maxCount:1,
+    nameEn:'Alpha Wolf',      nameAr:'الذئب الألفا',
+    descEn:'Wakes with wolves. Can sacrifice himself any night to counter the Hunting Dog.',
+    descAr:'يستيقظ مع الذئاب. يمكنه التضحية بنفسه أي ليلة لمواجهة كلب الصيد.' },
+
+  // ─── VILLAGERS ───
+  { id:'villager',      emoji:'👤', team:'Villagers', wakes:false, nightOrder:null, defaultCount:3, minCount:0, maxCount:12,
+    nameEn:'Simple Villager', nameAr:'القروي العادي',
+    descEn:'No special power. Uses logic and observation to identify the wolves.',
+    descAr:'لا قدرة خاصة. يستخدم المنطق والملاحظة.' },
+
+  { id:'witch',         emoji:'🧙', team:'Villagers', wakes:true,  nightOrder:80,  defaultCount:1, minCount:0, maxCount:1,
+    nameEn:'Witch',           nameAr:'الساحرة',
+    descEn:'Has 1 revive potion and 1 kill potion. Sees the wolf target. Cannot use kill on Night 1.',
+    descAr:'لديها جرعة إحياء وقتل. ترى هدف الذئاب. لا قتل في الليلة الأولى.' },
+
+  { id:'saving',        emoji:'🛡️', team:'Villagers', wakes:true,  nightOrder:70,  defaultCount:1, minCount:0, maxCount:1,
+    nameEn:'Saving',          nameAr:'المنقذ',
+    descEn:'Protects one player from all kills each night. Cannot protect the same player two nights in a row.',
+    descAr:'يحمي لاعبًا من جميع حالات القتل. لا يحمي نفس الشخص ليلتين متتاليتين.',
+    interactive: true, abilityLabel: 'Protect 🛡️', abilityTag: 'protected' },
+
+  { id:'seer',          emoji:'🔮', team:'Villagers', wakes:true,  nightOrder:90,  defaultCount:1, minCount:0, maxCount:1,
+    nameEn:'Seer',            nameAr:'العرّافة',
+    descEn:'Checks one player\'s true role each night. Beware the Blue Wolf on first check.',
+    descAr:'تفحص دور لاعب واحد كل ليلة.' },
+
+  { id:'hunter',        emoji:'🏹', team:'Villagers', wakes:false, nightOrder:null, defaultCount:1, minCount:0, maxCount:2,
+    nameEn:'Hunter',          nameAr:'الصياد',
+    descEn:'On death, immediately shoots and kills one player of choice.',
+    descAr:'عند الموت، يطلق النار ويقتل لاعبًا من اختياره.' },
+
+  { id:'commissioner',  emoji:'⚖️', team:'Villagers', wakes:true,  nightOrder:30,  defaultCount:0, minCount:0, maxCount:1,
+    nameEn:'Commissioner',    nameAr:'المفوض',
+    descEn:'Jails one player: protected from kills AND powers blocked. Cannot jail the same person twice in a row.',
+    descAr:'يسجن لاعبًا: يُحمى ويُحجب. لا يعيد سجن نفس الشخص.' },
+
+  { id:'knight',        emoji:'⚔️', team:'Villagers', wakes:false, nightOrder:null, defaultCount:0, minCount:0, maxCount:1,
+    nameEn:'Knight',          nameAr:'الفارس',
+    descEn:'Passive: on death, kills the closest living wolf to the right in seating order.',
+    descAr:'سلبي: عند الموت يقتل أقرب ذئب حي على اليمين.' },
+
+  { id:'servant',       emoji:'🍺', team:'Villagers', wakes:true,  nightOrder:110, defaultCount:0, minCount:0, maxCount:1,
+    nameEn:'Servant',         nameAr:'الخادم',
+    descEn:'Makes one player Drunk each night: they can speak but cannot vote.',
+    descAr:'يجعل لاعبًا سكرانًا كل ليلة: يتكلم لكن لا يصوت.',
+    interactive: true, abilityLabel: 'Drunk 🍺', abilityTag: 'drunk' },
+
+  { id:'supplier',      emoji:'📦', team:'Villagers', wakes:true,  nightOrder:75,  defaultCount:0, minCount:0, maxCount:1,
+    nameEn:'Supplier',        nameAr:'المزوّد',
+    descEn:'Searches for the Witch. When found, gives +1 revive and +1 kill potion. Stops waking after.',
+    descAr:'يبحث عن الساحرة. عند العثور عليها يمنحها جرعات إضافية.' },
+
+  { id:'hunting_dog',   emoji:'🐕', team:'Villagers', wakes:true,  nightOrder:120, defaultCount:0, minCount:0, maxCount:1,
+    nameEn:'Hunting Dog',     nameAr:'كلب الصيد',
+    descEn:'Rival of Alpha Wolf. Can sacrifice himself to guess the Alpha Wolf. Correct = both die, wrong = only Hunting Dog dies.',
+    descAr:'منافس الذئب الألفا. يمكنه التضحية لتخمين الألفا. صحيح = يموتان، خاطئ = يموت كلب الصيد فقط.' },
+
+  { id:'ancient',       emoji:'👴', team:'Villagers', wakes:false, nightOrder:null, defaultCount:0, minCount:0, maxCount:1,
+    nameEn:'Ancient',         nameAr:'الشيخ',
+    descEn:'Immune to the first two kill attempts. If voted out, ALL villagers lose their special powers.',
+    descAr:'محصّن ضد أول محاولتي قتل. إذا طُرد بالتصويت، جميع القرويين يفقدون قدراتهم.' },
+
+  // ─── SPECIAL ───
+  { id:'cupid',         emoji:'💘', team:'Special',   wakes:true,  nightOrder:20,  defaultCount:0, minCount:0, maxCount:1,
+    nameEn:'Cupid',           nameAr:'كيوبيد',
+    descEn:'Night 1 only: links two players as Lovers. Lovers know each other\'s roles and die together.',
+    descAr:'الليلة الأولى فقط: يربط لاعبَين كعاشقَين. يعرفان أدوار بعضهما ويموتان معًا.',
+    interactive: true, abilityLabel: 'Link Lovers 💘' },
+
+  { id:'wild_child',    emoji:'👶', team:'Special',   wakes:true,  nightOrder:10,  defaultCount:0, minCount:0, maxCount:1,
+    nameEn:'Wild Child',      nameAr:'الطفل البري',
+    descEn:'Nights 1-2: secretly chooses a father. If the father dies, Wild Child becomes a Wolf.',
+    descAr:'الليلتان 1-2: يختار أبًا سرًا. إذا مات الأب يصبح الطفل ذئبًا.',
+    interactive: true, abilityLabel: 'Choose Father 👨' },
+
+  { id:'schizophrenic', emoji:'🎭', team:'Special',   wakes:true,  nightOrder:115, defaultCount:0, minCount:0, maxCount:1,
+    nameEn:'Schizophrenic',   nameAr:'المتقلب',
+    descEn:'Nights 1-2: copies any chosen role (with fresh abilities). If copied role dies that night, becomes Villager.',
+    descAr:'الليلتان 1-2: ينسخ أي دور مختار. إذا مات المنسوخ تلك الليلة يصبح قرويًا.',
+    interactive: true, abilityLabel: 'Copy Role 🎭' },
+
+  { id:'crow',          emoji:'🦅', team:'Special',   wakes:false, nightOrder:null, defaultCount:0, minCount:0, maxCount:1,
+    nameEn:'Crow',            nameAr:'الغراب',
+    descEn:'Day action: before the vote, secretly gives +2 votes against one chosen player.',
+    descAr:'أثناء النهار: يمنح +2 أصوات ضد لاعب مختار قبل التصويت.' },
+];
+
+// Night order sequence (all possible steps)
+const NIGHT_SEQUENCE = [
+  { key:'wild_child',   emoji:'👶', nameEn:'Wild Child',    nameAr:'الطفل البري',     isWolf:false },
+  { key:'cupid',        emoji:'💘', nameEn:'Cupid',         nameAr:'كيوبيد',          isWolf:false },
+  { key:'commissioner', emoji:'⚖️', nameEn:'Commissioner',  nameAr:'المفوض',           isWolf:false },
+  { key:'red_wolf',     emoji:'❤️', nameEn:'Red Wolf',      nameAr:'الذئب الأحمر',    isWolf:true  },
+  { key:'all_wolves',   emoji:'🐺', nameEn:'All Wolves',    nameAr:'جميع الذئاب',     isWolf:true  },
+  { key:'white_wolf',   emoji:'🤍', nameEn:'White Wolf',    nameAr:'الذئب الأبيض',    isWolf:true  },
+  { key:'saving',       emoji:'🛡️', nameEn:'Saving',        nameAr:'المنقذ',           isWolf:false },
+  { key:'supplier',     emoji:'📦', nameEn:'Supplier',      nameAr:'المزوّد',          isWolf:false },
+  { key:'witch',        emoji:'🧙', nameEn:'Witch',         nameAr:'الساحرة',          isWolf:false },
+  { key:'seer',         emoji:'🔮', nameEn:'Seer',          nameAr:'العرّافة',         isWolf:false },
+  { key:'black_wolf',   emoji:'🖤', nameEn:'Black Wolf',    nameAr:'الذئب الأسود',    isWolf:true  },
+  { key:'servant',      emoji:'🍺', nameEn:'Servant',       nameAr:'الخادم',           isWolf:false },
+  { key:'schizophrenic',emoji:'🎭', nameEn:'Schizophrenic', nameAr:'المتقلب',          isWolf:false },
+  { key:'hunting_dog',  emoji:'🐕', nameEn:'Hunting Dog',   nameAr:'كلب الصيد',        isWolf:false },
+  { key:'alpha_wolf',   emoji:'👑', nameEn:'Alpha Wolf',    nameAr:'الذئب الألفا',    isWolf:true  },
+];
+
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+let state = {
+  players: [],        // { name, roleId }
+  roleCounts: {},
+  assignments: [],    // { name, roleId } (game-active, may change)
+  playerStatus: {},   // name -> { alive, tags: Set, ...extra }
+  nightNum: 1,
+  currentStep: 0,
+  wildChildFatherId: null,  // player name
+  lovers: [],               // [nameA, nameB]
+};
+
+// init role counts
+ROLES.forEach(r => { state.roleCounts[r.id] = r.defaultCount; });
+
+// ═══════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+const roleById = id => ROLES.find(r => r.id === id);
+
+function getAlivePlayers() {
+  return state.assignments.filter(a => state.playerStatus[a.name]?.alive);
+}
+function isAlive(name) { return state.playerStatus[name]?.alive === true; }
+
+function getPlayerRole(name) {
+  const a = state.assignments.find(a => a.name === name);
+  return a ? roleById(a.roleId) : null;
+}
+
+function killPlayer(name) {
+  if (!state.playerStatus[name]) return;
+  state.playerStatus[name].alive = false;
+  // Check lovers
+  if (state.lovers.includes(name)) {
+    const partner = state.lovers.find(l => l !== name);
+    if (partner && isAlive(partner)) {
+      state.playerStatus[partner].alive = false;
+      state.playerStatus[partner].tags.add('dead');
+    }
+  }
+  // Wild child father dies -> wild child turns wolf
+  if (state.wildChildFatherId === name) {
+    const wc = state.assignments.find(a => a.roleId === 'wild_child');
+    if (wc && isAlive(wc.name)) {
+      wc.roleId = 'simple_wolf';
+      state.playerStatus[wc.name].tags.add('wolf-turn');
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  SETUP SCREEN — PLAYERS
+// ═══════════════════════════════════════════════════════
+function addPlayer() {
+  const inp = $('playerInput');
+  const name = inp.value.trim();
+  if (!name) return;
+  if (state.players.some(p => p.toLowerCase() === name.toLowerCase())) {
+    showAlert('Ce nom existe déjà !', 'err'); return;
+  }
+  state.players.push(name);
+  inp.value = '';
+  renderPlayers();
+  hideResults();
+}
+document.addEventListener('DOMContentLoaded', () => {
+  $('playerInput').addEventListener('keydown', e => { if (e.key === 'Enter') addPlayer(); });
+  renderRolesList();
+  renderGuide('all');
+  updateStats();
+});
+
+function removePlayer(i) { state.players.splice(i, 1); renderPlayers(); hideResults(); }
+
+function renderPlayers() {
+  const el = $('playersTags');
+  if (!state.players.length) {
+    el.innerHTML = '<span class="empty-hint">Aucun joueur ajouté</span>'; }
+  else {
+    el.innerHTML = state.players.map((p, i) => `
+      <span class="p-tag">
+        <span class="p-tag-num">${i+1}</span>${p}
+        <span class="p-tag-del" onclick="removePlayer(${i})">✕</span>
+      </span>`).join('');
+  }
+  updateStats();
+}
+
+// ═══════════════════════════════════════════════════════
+//  SETUP SCREEN — ROLES LIST
+// ═══════════════════════════════════════════════════════
+function renderRolesList() {
+  const groups = [
+    { key:'Wolves',    label:'Loups — الذئاب',      cls:'wolves' },
+    { key:'Villagers', label:'Villageois — القرويون', cls:'villagers' },
+    { key:'Special',   label:'Spéciaux — خاصون',     cls:'special' },
+  ];
+  let html = '';
+  groups.forEach(g => {
+    html += `<div class="role-group-title ${g.cls}">${g.label}</div>`;
+    ROLES.filter(r => r.team === g.key).forEach(role => {
+      const cnt = state.roleCounts[role.id];
+      html += `
+        <div class="role-row">
+          <span class="role-emoji">${role.emoji}</span>
+          <div class="role-meta">
+            <div class="role-name-en">${role.nameEn}</div>
+            <div class="role-name-ar">${role.nameAr}</div>
+          </div>
+          <span class="role-team-badge badge-${g.key.toLowerCase()}">${g.key==='Wolves'?'🐺':g.key==='Villagers'?'🏘️':'✨'}</span>
+          <button class="role-desc-btn" onclick="openRoleModal('${role.id}')">ⓘ</button>
+          <div class="role-controls">
+            <button class="rc-btn" onclick="changeCount('${role.id}',-1)" ${cnt<=role.minCount?'disabled':''}>−</button>
+            <span class="rc-count">${cnt}</span>
+            <button class="rc-btn" onclick="changeCount('${role.id}',1)" ${cnt>=role.maxCount?'disabled':''}>+</button>
+          </div>
+        </div>`;
+    });
+  });
+  $('rolesListEl').innerHTML = html;
+  updateStats();
+}
+
+function changeCount(id, delta) {
+  const role = roleById(id);
+  const nv = state.roleCounts[id] + delta;
+  if (nv >= role.minCount && nv <= role.maxCount) {
+    state.roleCounts[id] = nv;
+    renderRolesList();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  STATS & ALERTS
+// ═══════════════════════════════════════════════════════
+function updateStats() {
+  const tp = state.players.length;
+  const tr = Object.entries(state.roleCounts).reduce((s,[,v])=>s+v,0);
+  const tw = ROLES.filter(r=>r.team==='Wolves').reduce((s,r)=>s+state.roleCounts[r.id],0);
+  const diff = tr - tp;
+  $('statPlayers').textContent = tp;
+  $('statRoles').textContent   = tr;
+  $('statWolves').textContent  = tw;
+  const dEl = $('statDiff');
+  dEl.textContent = diff >= 0 ? '+' + diff : diff;
+  dEl.className = 'stat-val' + (diff < 0 ? ' bad' : diff > 0 ? ' good' : '');
+  const btn = $('assignBtn');
+  if (tp === 0)          { showAlert('⚠ Ajoutez au moins un joueur', 'err'); btn.disabled = true; }
+  else if (tr < tp)      { showAlert(`⚠ Il manque ${tp - tr} rôle(s)`, 'err'); btn.disabled = true; }
+  else if (tr > tp)      { showAlert(`ℹ ${tr - tp} rôle(s) en trop (mis de côté)`, 'info'); btn.disabled = false; }
+  else                   { clearAlert(); btn.disabled = false; }
+}
+
+function showAlert(msg, type) { $('alertEl').innerHTML = `<div class="alert alert-${type}">${msg}</div>`; }
+function clearAlert()         { $('alertEl').innerHTML = ''; }
+
+// ═══════════════════════════════════════════════════════
+//  ASSIGN & START GAME
+// ═══════════════════════════════════════════════════════
+function assignAndStart() {
+  const tp = state.players.length;
+  let pool = [];
+  ROLES.forEach(r => { for (let i = 0; i < state.roleCounts[r.id]; i++) pool.push(r.id); });
+  // shuffle
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  state.assignments = state.players.map((p, i) => ({ name: p, roleId: pool[i] || 'villager' }));
+  state.assignments.sort((a, b) => a.name.localeCompare(b.name));
+  state.playerStatus = {};
+  state.assignments.forEach(a => {
+    state.playerStatus[a.name] = { alive: true, tags: new Set() };
+  });
+  state.nightNum = 1;
+  state.currentStep = 0;
+  state.wildChildFatherId = null;
+  state.lovers = [];
+  switchToGame();
+}
+
+function goSetup() {
+  $('gameScreen').classList.remove('active');
+  $('setupScreen').classList.add('active');
+}
+
+function resetAll() {
+  if (!confirm('Tout réinitialiser ?')) return;
+  state.players = [];
+  ROLES.forEach(r => { state.roleCounts[r.id] = r.defaultCount; });
+  state.assignments = [];
+  state.playerStatus = {};
+  renderPlayers();
+  renderRolesList();
+  hideResults();
+  clearAlert();
+}
+
+function hideResults() { /* no-op in this version (no separate results) */ }
+
+// ═══════════════════════════════════════════════════════
+//  GAME SCREEN
+// ═══════════════════════════════════════════════════════
+function switchToGame() {
+  $('setupScreen').classList.remove('active');
+  $('gameScreen').classList.add('active');
+  renderGame();
+}
+
+function nextNight() {
+  state.nightNum++;
+  state.currentStep = 0;
+  // clear per-night tags
+  Object.values(state.playerStatus).forEach(ps => {
+    ps.tags.delete('protected');
+    ps.tags.delete('wolf-turn');
+    // keep silenced/drunk just for display; host manually removes via re-clicking
+  });
+  renderGame();
+}
+
+function renderGame() {
+  $('nightLabel').textContent = `Nuit ${state.nightNum} — الليلة ${state.nightNum}`;
+  const alive = getAlivePlayers();
+  $('aliveCount').textContent = `${alive.length} vivants`;
+  renderPlayerList();
+  renderNightOrder();
+}
+
+// ─── PLAYER LIST (col 1) ───
+function renderPlayerList() {
+  const el = $('playerList');
+  el.innerHTML = state.assignments.map(a => {
+    const ps = state.playerStatus[a.name];
+    const alive = ps.alive;
+    const role = roleById(a.roleId);
+    if (!role) return '';
+    const tagsHtml = buildTagsHtml(a.name, ps);
+    const actionBtn = buildActionBtn(a);
+    const copyBtnId = `cpbtn-${a.name.replace(/\s/g,'_')}`;
+    return `
+      <div class="player-card ${alive ? '' : 'dead'}" id="pc-${a.name.replace(/\s/g,'_')}">
+        <button class="player-dead-btn ${alive ? 'alive' : 'dead'}"
+          onclick="toggleDead('${escName(a.name)}')"
+          title="${alive ? 'Vivant — حي' : 'Mort — ميت'}"></button>
+        <div class="player-card-body">
+          <div class="player-card-name">
+            ${a.name}
+          </div>
+          <div class="player-card-role">
+            <span>${role.emoji}</span>
+            <span class="player-role-name">${role.nameEn}</span>
+            <span class="player-role-ar">${role.nameAr}</span>
+          </div>
+          ${tagsHtml}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+          ${actionBtn}
+          <button class="assign-copy-btn" id="${copyBtnId}" onclick="copyPlayerRole('${escName(a.name)}','${copyBtnId}')">📋</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function buildTagsHtml(name, ps) {
+  const tags = [];
+  if (!ps.alive)            tags.push(`<span class="status-tag tag-dead">☠️ Mort</span>`);
+  if (state.lovers.includes(name)) tags.push(`<span class="status-tag tag-love">❤️ In Love</span>`);
+  if (ps.tags.has('drunk'))     tags.push(`<span class="status-tag tag-drunk">🍺 Drunk</span>`);
+  if (ps.tags.has('protected')) tags.push(`<span class="status-tag tag-protected">🛡️ Protected</span>`);
+  if (ps.tags.has('silenced'))  tags.push(`<span class="status-tag tag-silenced">🔇 Silenced</span>`);
+  if (ps.tags.has('wolf-turn')) tags.push(`<span class="status-tag tag-wolf-turn">🐺 Turned Wolf</span>`);
+  return tags.length ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">${tags.join('')}</div>` : '';
+}
+
+function buildActionBtn(a) {
+  const role = roleById(a.roleId);
+  if (!role || !role.interactive || !isAlive(a.name)) return '';
+  return `<button class="player-action-btn" onclick="openAbilityModal('${escName(a.name)}')">${role.abilityLabel}</button>`;
+}
+
+function escName(name) { return name.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+
+function toggleDead(name) {
+  const ps = state.playerStatus[name];
+  if (!ps) return;
+  if (ps.alive) {
+    killPlayer(name);
+  } else {
+    ps.alive = true;
+  }
+  renderGame();
+}
+
+function copyPlayerRole(name, btnId) {
+  const a = state.assignments.find(x => x.name === name);
+  if (!a) return;
+  const role = roleById(a.roleId);
+  const text = `👤 ${a.name}\n🎭 ${role.emoji} ${role.nameEn} — ${role.nameAr}`;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById(btnId);
+    if (btn) { btn.textContent = '✓'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = '📋'; btn.classList.remove('copied'); }, 1800); }
+  });
+}
+
+// ─── NIGHT ORDER (col 2) ───
+function getActiveSteps() {
+  const wolfIds = ['simple_wolf','black_wolf','blue_wolf','red_wolf','white_wolf','alpha_wolf'];
+  const hasAliveRole = id => state.assignments.some(a => a.roleId === id && isAlive(a.name));
+  const hasAnyAliveWolf = () => wolfIds.some(id => state.assignments.some(a => a.roleId === id && isAlive(a.name)));
+
+  return NIGHT_SEQUENCE.filter(step => {
+    if (step.key === 'all_wolves') return hasAnyAliveWolf();
+    return hasAliveRole(step.key);
+  });
+}
+
+function renderNightOrder() {
+  const steps = getActiveSteps();
+  const el = $('nightOrderEl');
+  if (!steps.length) {
+    el.innerHTML = '<p style="padding:20px;color:var(--text-dim);font-style:italic;">Aucun rôle actif cette nuit.</p>';
+    return;
+  }
+  if (state.currentStep >= steps.length) state.currentStep = steps.length - 1;
+
+  el.innerHTML = steps.map((step, i) => {
+    const active = i === state.currentStep;
+    const players = getPlayersForStep(step.key);
+    const playersHtml = players.map(p =>
+      `<span class="night-step-player-tag ${step.isWolf ? 'wolf-tag' : ''}">${p}</span>`
+    ).join('');
+    return `
+      <div class="night-step ${active ? 'active' : ''} ${step.isWolf ? 'wolf-step' : ''}"
+           id="ns-${i}" onclick="jumpStep(${i})">
+        <span class="night-step-num">${i+1}</span>
+        <span class="night-step-emoji">${step.emoji}</span>
+        <div class="night-step-meta">
+          <div class="night-step-name">${step.nameEn}</div>
+          <div class="night-step-name-ar">${step.nameAr}</div>
+        </div>
+        <div class="night-step-players">${playersHtml}</div>
+        ${active ? `<button class="night-step-advance" onclick="event.stopPropagation();advanceStep()">▶</button>` : ''}
+      </div>`;
+  }).join('');
+
+  // scroll active into view
+  const activeEl = document.getElementById(`ns-${state.currentStep}`);
+  if (activeEl) activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function getPlayersForStep(key) {
+  const wolfIds = ['simple_wolf','black_wolf','blue_wolf','red_wolf','white_wolf','alpha_wolf'];
+  if (key === 'all_wolves') {
+    return state.assignments
+      .filter(a => wolfIds.includes(a.roleId) && isAlive(a.name))
+      .map(a => a.name);
+  }
+  return state.assignments
+    .filter(a => a.roleId === key && isAlive(a.name))
+    .map(a => a.name);
+}
+
+function jumpStep(i) { state.currentStep = i; renderNightOrder(); }
+
+function advanceStep() {
+  const steps = getActiveSteps();
+  if (state.currentStep < steps.length - 1) { state.currentStep++; renderNightOrder(); }
+}
+
+// ═══════════════════════════════════════════════════════
+//  ABILITY MODALS
+// ═══════════════════════════════════════════════════════
+function openAbilityModal(name) {
+  const a = state.assignments.find(x => x.name === name);
+  if (!a) return;
+  const role = roleById(a.roleId);
+  if (!role || !role.interactive) return;
+
+  if (role.id === 'wild_child')    openWildChildModal(name);
+  else if (role.id === 'cupid')    openCupidModal(name);
+  else if (role.id === 'schizophrenic') openSchizoModal(name);
+  else if (role.abilityTag)        openTagModal(name, role);
+}
+
+// ─── TAG ABILITY (black wolf / servant / saving) ───
+let tagPendingSelection = null;
+function openTagModal(actorName, role) {
+  tagPendingSelection = null;
+  const alive = getAlivePlayers();
+  $('modalTitle').innerHTML = `${role.emoji} ${role.nameEn} — ${role.abilityLabel}`;
+  $('modalBody').innerHTML = `
+    <p>Sélectionnez le joueur cible :</p>
+    <div class="modal-select-list">
+      ${alive.map(a => {
+        const hasTag = state.playerStatus[a.name].tags.has(role.abilityTag);
+        return `
+          <div class="modal-player-row ${hasTag ? 'selected' : ''}" id="mpr-${escId(a.name)}"
+               onclick="selectTagTarget('${escName(a.name)}','${role.abilityTag}','${escName(actorName)}')">
+            <span class="mpr-name">${a.name}</span>
+            <span class="mpr-role">${roleById(a.roleId)?.emoji} ${roleById(a.roleId)?.nameEn}</span>
+            ${hasTag ? `<span class="status-tag" style="font-size:0.6em;">${role.abilityLabel}</span>` : ''}
+          </div>`;
+      }).join('')}
+    </div>
+    <button class="modal-confirm-btn" onclick="closeModal()">✓ Fermer</button>
+  `;
+  openModal();
+}
+
+function selectTagTarget(targetName, tag, actorName) {
+  // remove tag from everyone
+  state.assignments.forEach(a => { state.playerStatus[a.name]?.tags.delete(tag); });
+  // apply to target
+  state.playerStatus[targetName]?.tags.add(tag);
+  closeModal();
+  renderGame();
+}
+
+// ─── WILD CHILD ───
+function openWildChildModal(actorName) {
+  const alive = getAlivePlayers().filter(a => a.name !== actorName);
+  $('modalTitle').innerHTML = `👶 Wild Child — Choose Father`;
+  $('modalBody').innerHTML = `
+    <p>Sélectionnez le père du Wild Child. Si le père meurt, le Wild Child devient un Loup.</p>
+    <div class="modal-select-list">
+      ${alive.map(a => {
+        const isFather = state.wildChildFatherId === a.name;
+        return `
+          <div class="modal-player-row ${isFather ? 'selected' : ''}" onclick="setWildChildFather('${escName(a.name)}')">
+            <span class="mpr-name">${a.name}</span>
+            <span class="mpr-role">${roleById(a.roleId)?.emoji} ${roleById(a.roleId)?.nameEn}</span>
+            ${isFather ? '<span class="status-tag tag-protected" style="font-size:0.6em;">👨 Père</span>' : ''}
+          </div>`;
+      }).join('')}
+    </div>
+    <button class="modal-confirm-btn" onclick="closeModal()">✓ Confirmer</button>
+  `;
+  openModal();
+}
+
+function setWildChildFather(name) {
+  state.wildChildFatherId = name;
+  closeModal();
+  renderGame();
+}
+
+// ─── CUPID ───
+let cupidSelected = [];
+function openCupidModal(actorName) {
+  cupidSelected = [...state.lovers];
+  $('modalTitle').innerHTML = `💘 Cupid — Link Lovers`;
+  renderCupidModal(actorName);
+  openModal();
+}
+
+function renderCupidModal(actorName) {
+  const alive = getAlivePlayers();
+  $('modalBody').innerHTML = `
+    <p>Sélectionnez 2 joueurs (Cupid peut se choisir lui-même). Si l'un meurt, l'autre meurt aussi.</p>
+    <div class="modal-select-list">
+      ${alive.map(a => {
+        const sel = cupidSelected.includes(a.name);
+        return `
+          <div class="modal-player-row ${sel ? 'selected' : ''}" onclick="toggleCupidSelect('${escName(a.name)}','${escName(actorName)}')">
+            <span class="mpr-name">${a.name}</span>
+            <span class="mpr-role">${roleById(a.roleId)?.emoji} ${roleById(a.roleId)?.nameEn}</span>
+            ${sel ? '<span class="status-tag tag-love" style="font-size:0.6em;">❤️</span>' : ''}
+          </div>`;
+      }).join('')}
+    </div>
+    <button class="modal-confirm-btn" onclick="confirmCupid('${escName(actorName)}')"
+      ${cupidSelected.length !== 2 ? 'disabled' : ''}>
+      ❤️ Lier les amoureux (${cupidSelected.length}/2)
+    </button>
+  `;
+}
+
+function toggleCupidSelect(name, actorName) {
+  if (cupidSelected.includes(name)) {
+    cupidSelected = cupidSelected.filter(n => n !== name);
+  } else {
+    if (cupidSelected.length < 2) cupidSelected.push(name);
+  }
+  renderCupidModal(actorName);
+}
+
+function confirmCupid(actorName) {
+  if (cupidSelected.length !== 2) return;
+  state.lovers = [...cupidSelected];
+  closeModal();
+  renderGame();
+}
+
+// ─── SCHIZO ───
+let schizoTargetRole = null;
+function openSchizoModal(actorName) {
+  schizoTargetRole = null;
+  $('modalTitle').innerHTML = `🎭 Schizophrenic — Copy Role`;
+  $('modalBody').innerHTML = `
+    <p>Sélectionnez un rôle à copier :</p>
+    <div class="modal-role-grid">
+      ${ROLES.filter(r => r.id !== 'schizophrenic' && r.id !== 'villager').map(r => `
+        <div class="modal-role-option" onclick="selectSchizoRole('${r.id}','${escName(actorName)}')">
+          <span>${r.emoji}</span><span>${r.nameEn}</span>
+        </div>`).join('')}
+    </div>
+    <button class="modal-confirm-btn" id="schizoConfirm" onclick="confirmSchizo('${escName(actorName)}')" disabled>
+      🎭 Copier ce rôle
+    </button>
+  `;
+  openModal();
+}
+
+function selectSchizoRole(roleId, actorName) {
+  schizoTargetRole = roleId;
+  document.querySelectorAll('.modal-role-option').forEach(el => el.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  const btn = document.getElementById('schizoConfirm');
+  if (btn) { btn.disabled = false; btn.textContent = `🎭 Copier: ${roleById(roleId)?.nameEn}`; }
+}
+
+function confirmSchizo(actorName) {
+  if (!schizoTargetRole) return;
+  const a = state.assignments.find(x => x.name === actorName);
+  if (a) a.roleId = schizoTargetRole;
+  closeModal();
+  renderGame();
+}
+
+// ─── ROLE INFO MODAL ───
+function openRoleModal(id) {
+  const role = roleById(id);
+  if (!role) return;
+  $('modalTitle').innerHTML = `${role.emoji} ${role.nameEn} — ${role.nameAr}`;
+  $('modalBody').innerHTML = `
+    <div style="margin-bottom:10px;">
+      <div style="font-size:0.7em;letter-spacing:2px;color:var(--gold-dark);font-family:'Cinzel',serif;text-transform:uppercase;margin-bottom:4px;">English</div>
+      <p style="font-style:normal;color:var(--text);">${role.descEn}</p>
+    </div>
+    <div>
+      <div style="font-size:0.7em;letter-spacing:2px;color:var(--gold-dark);font-family:'Cinzel',serif;text-transform:uppercase;margin-bottom:4px;direction:rtl;text-align:right;">العربية</div>
+      <p style="direction:rtl;text-align:right;font-style:normal;color:var(--text-mid);">${role.descAr}</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+      <span class="role-team-badge badge-${role.team.toLowerCase()}">${role.team}</span>
+      <span class="status-tag ${role.wakes ? 'tag-protected' : 'tag-silenced'}" style="font-size:0.65em;">${role.wakes ? '🌙 Se réveille' : '😴 Dort'}</span>
+    </div>
+  `;
+  openModal();
+}
+
+// ═══════════════════════════════════════════════════════
+//  GUIDE (SETUP)
+// ═══════════════════════════════════════════════════════
+function filterGuide(f, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGuide(f);
+}
+
+function renderGuide(filter) {
+  const el = $('guideGrid');
+  if (!el) return;
+  const list = filter === 'all' ? ROLES : ROLES.filter(r => r.team === filter);
+  el.innerHTML = list.map(role => `
+    <div class="guide-card">
+      <div class="guide-card-top">
+        <span class="guide-card-emoji">${role.emoji}</span>
+        <div>
+          <div class="guide-card-name-en">${role.nameEn}</div>
+          <div class="guide-card-name-ar">${role.nameAr}</div>
+        </div>
+        <span class="role-team-badge badge-${role.team.toLowerCase()}" style="margin-left:auto;">${role.wakes?'🌙':'😴'}</span>
+      </div>
+      <div class="guide-card-desc-en">${role.descEn}</div>
+      <div class="guide-card-desc-ar">${role.descAr}</div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+//  MODAL HELPERS
+// ═══════════════════════════════════════════════════════
+function openModal() { $('modalOverlay').classList.remove('hidden'); }
+function closeModal(e) {
+  if (!e || e.target === $('modalOverlay')) $('modalOverlay').classList.add('hidden');
+}
+
+function escId(name) { return name.replace(/[^a-zA-Z0-9]/g, '_'); }
+
+</script>
+</body>
+</html>
