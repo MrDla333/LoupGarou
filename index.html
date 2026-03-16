@@ -396,7 +396,101 @@ body {
   text-shadow: 0 0 20px rgba(212,175,55,0.3);
   letter-spacing: 2px;
 }
-.game-header-right { display: flex; gap: 8px; flex-wrap: wrap; }
+.game-header-right { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* ─── TIMER ─── */
+.timer-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border-bright);
+  border-radius: 30px;
+  padding: 5px 12px;
+}
+.timer-display {
+  font-family: 'Cinzel', serif;
+  font-size: 1em;
+  color: var(--gold);
+  letter-spacing: 2px;
+  min-width: 52px;
+  text-align: center;
+}
+.timer-display.running { color: #5ed98a; }
+.timer-display.urgent  { color: #ff6b6b; animation: pulse 0.6s ease-in-out infinite alternate; }
+@keyframes pulse { from { opacity:1; } to { opacity:0.5; } }
+.timer-input {
+  width: 38px;
+  padding: 2px 4px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface3);
+  color: var(--text);
+  font-family: 'Cinzel', serif;
+  font-size: 0.75em;
+  text-align: center;
+  outline: none;
+}
+.timer-input:focus { border-color: var(--gold-dark); }
+.timer-sep { color: var(--text-dim); font-size: 0.7em; font-family: 'Cinzel', serif; }
+.timer-btn {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface3);
+  color: var(--text-dim);
+  font-size: 0.7em;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.timer-btn:hover { border-color: var(--gold-dark); color: var(--gold); background: var(--gold-dim); }
+
+/* ─── MAYOR BUTTON ─── */
+.mayor-btn {
+  font-size: 0.58em;
+  padding: 3px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.mayor-btn:hover { border-color: var(--gold-dark); color: var(--gold); background: var(--gold-dim); }
+.mayor-btn.is-mayor { border-color: var(--gold-dark); color: var(--gold); background: var(--gold-dim); }
+
+/* ─── LAYOUT CODE (setup) ─── */
+.code-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.code-input {
+  flex: 1;
+  min-width: 160px;
+  padding: 7px 14px;
+  border-radius: 30px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-size: 0.72em;
+  letter-spacing: 1px;
+  outline: none;
+  transition: border-color 0.18s;
+}
+.code-input:focus { border-color: var(--gold-dark); }
+.code-input::placeholder { color: var(--text-dim); font-size: 0.9em; letter-spacing: 0; }
+
+/* ─── DIFFICULTY STARS ─── */
+.diff-stars { display: inline-flex; gap: 2px; margin-left: 4px; }
+.diff-star { font-size: 0.75em; opacity: 0.25; }
+.diff-star.lit { opacity: 1; }
 
 /* ─── COLUMNS WRAP ─── */
 .columns-wrap {
@@ -522,6 +616,10 @@ body {
 .tag-protected { background: rgba(46,109,164,0.2);  border: 1px solid #2e5080; color: #80b0e0; }
 .tag-silenced  { background: rgba(80,60,100,0.3);   border: 1px solid #504070; color: #b090d0; }
 .tag-wolf-turn { background: rgba(176,48,32,0.2);   border: 1px solid var(--wolf-red); color: #ff9070; }
+.tag-mayor     { background: rgba(212,175,55,0.18); border: 1px solid var(--gold-dark); color: var(--gold-light); }
+.tag-infected  { background: rgba(50,180,80,0.15);  border: 1px solid #2a8a40; color: #70e090; }
+.tag-enchanted { background: rgba(160,80,200,0.2);  border: 1px solid #8040a0; color: #d090ff; }
+.tag-nonose    { background: rgba(100,80,60,0.2);   border: 1px solid #6a5a40; color: #c0a070; }
 
 /* action button on player card */
 .player-action-btn {
@@ -815,6 +913,12 @@ body {
     <div class="card">
       <div class="card-title">🎭 Rôles — الأدوار</div>
       <div id="rolesListEl"></div>
+      <div class="code-row">
+        <button class="btn small" onclick="exportLayoutCode()">💾 Export Code</button>
+        <input class="code-input" id="layoutCodeInput" placeholder="Paste code to import…" autocomplete="off" spellcheck="false">
+        <button class="btn small" onclick="importLayoutCode()">📥 Import</button>
+      </div>
+      <div id="codeAlertEl"></div>
     </div>
 
     <!-- Stats -->
@@ -857,6 +961,15 @@ body {
       <span class="game-title">🐺 LOUP-GAROU</span>
     </div>
     <div class="game-header-right">
+      <!-- TIMER -->
+      <div class="timer-wrap">
+        <input class="timer-input" id="timerMin" type="number" value="3" min="0" max="99" title="Minutes">
+        <span class="timer-sep">:</span>
+        <input class="timer-input" id="timerSec" type="number" value="0" min="0" max="59" title="Seconds">
+        <span class="timer-display" id="timerDisplay">–:––</span>
+        <button class="timer-btn" onclick="timerStartPause()" id="timerPlayBtn" title="Start/Pause">▶</button>
+        <button class="timer-btn" onclick="timerReset()" title="Reset">↺</button>
+      </div>
       <button class="btn small" onclick="goSetup()">⚙ Config</button>
       <button class="btn small success" onclick="nextNight()">🌙 Nuit +1</button>
     </div>
@@ -903,134 +1016,189 @@ const ROLES = [
   { id:'simple_wolf',   emoji:'🐺', team:'Wolves',    wakes:true,  nightOrder:60,  defaultCount:2, minCount:0, maxCount:8,
     nameEn:'Simple Wolf',     nameAr:'الذئب العادي',
     descEn:'Every night all wolves open their eyes together and silently agree on one villager to kill. As a Simple Wolf your only power is that kill vote — but blending in during the day is just as important. Act like a normal villager, point suspicion at others, and never let your reactions give you away.',
-    descAr:'كل ليلة، تفتح جميع الذئاب عيونها معاً وتتفق بصمت على قتل قروي واحد. كذئب بسيط، قوتك الوحيدة هي هذا التصويت — لكن الاندماج أثناء النهار لا يقل أهمية.' },
+    descAr:'كل ليلة، تفتح جميع الذئاب عيونها معاً وتتفق بصمت على قتل قروي واحد. كذئب بسيط، قوتك الوحيدة هي هذا التصويت — لكن الاندماج أثناء النهار لا يقل أهمية.',
+    difficulty: 1 },
 
   { id:'black_wolf',    emoji:'🖤', team:'Wolves',    wakes:true,  nightOrder:100, defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Black Wolf',      nameAr:'الذئب الأسود',
     descEn:'You wake twice every night. First with all wolves to vote on who to kill. Then you wake alone to choose one player to Silence. That player cannot say a single word the entire next day, but can still vote and use their powers. Use it to shut down the Seer before they share findings, stop someone about to expose a wolf, or just create chaos. Cannot silence the same person two nights in a row.',
     descAr:'تستيقظ مرتين كل ليلة. أولاً مع جميع الذئاب للتصويت. ثم تستيقظ وحدك لتختار لاعباً لإسكاته. لا يستطيع ذلك اللاعب قول كلمة واحدة طول اليوم التالي، لكنه لا يزال يستطيع التصويت واستخدام قدراته. استخدمه لإسكات العرّافة قبل مشاركة نتائجها. لا يمكن إسكات نفس الشخص مرتين متتاليتين.',
-    interactive: true, abilityLabel: 'Silence 🔇', abilityTag: 'silenced' },
+    interactive: true, abilityLabel: 'Silence 🔇', abilityTag: 'silenced', difficulty: 2 },
 
   { id:'blue_wolf',     emoji:'💙', team:'Wolves',    wakes:true,  nightOrder:60,  defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Blue Wolf',       nameAr:'الذئب الأزرق',
     descEn:'You wake with the wolf pack every night like a normal wolf. Your trick: the very first time the Seer checks you, they see Villager instead of Wolf. After that first check, the Seer sees your true Wolf identity. If the Seer checks you early and tells the village you are safe, you gain huge undeserved trust — use that window to blend in and redirect suspicion.',
-    descAr:'تستيقظ مع الذئاب كل ليلة كذئب عادي. حيلتك: في المرة الأولى فقط التي تفحصك فيها العرّافة، ترى قرويًا بدل ذئب. بعد ذلك ترى هويتك الحقيقية. إذا فحصتك مبكراً وأخبرت القرية بأنك آمن، تكسب ثقة كبيرة غير مستحقة — استغل هذه الفرصة للاندماج وتحويل الشك.' },
+    descAr:'تستيقظ مع الذئاب كل ليلة كذئب عادي. حيلتك: في المرة الأولى فقط التي تفحصك فيها العرّافة، ترى قرويًا بدل ذئب. بعد ذلك ترى هويتك الحقيقية. إذا فحصتك مبكراً وأخبرت القرية بأنك آمن، تكسب ثقة كبيرة غير مستحقة — استغل هذه الفرصة للاندماج وتحويل الشك.',
+    difficulty: 2 },
 
   { id:'red_wolf',      emoji:'❤️', team:'Wolves',    wakes:true,  nightOrder:40,  defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Red Wolf',        nameAr:'الذئب الأحمر',
     descEn:'You wake twice per night. First with the wolf pack for the kill vote. Then you wake alone to Abduct one player. That person cannot use their special power that night, and if they would normally wake for their role, they are told they have been abducted instead. This does NOT kill them. The confusion is huge: from the victim perspective, being abducted feels identical to being jailed by the Commissioner, so neither the victim nor anyone else knows who is responsible.',
-    descAr:'تستيقظ مرتين في الليلة. أولاً مع الذئاب للتصويت. ثم وحدك لاختطاف لاعب واحد. لا يستطيع المختطَف استخدام قدرته تلك الليلة. هذا لا يقتله. الارتباك ضخم: من منظور الضحية، الاختطاف يبدو مطابقاً تماماً للسجن من قبل المفوض، فلا الضحية ولا أي شخص آخر يعرف من المسؤول.' },
+    descAr:'تستيقظ مرتين في الليلة. أولاً مع الذئاب للتصويت. ثم وحدك لاختطاف لاعب واحد. لا يستطيع المختطَف استخدام قدرته تلك الليلة. هذا لا يقتله. الارتباك ضخم: من منظور الضحية، الاختطاف يبدو مطابقاً تماماً للسجن من قبل المفوض، فلا الضحية ولا أي شخص آخر يعرف من المسؤول.',
+    difficulty: 2 },
 
   { id:'white_wolf',    emoji:'🤍', team:'Wolves',    wakes:true,  nightOrder:70,  defaultCount:0, minCount:0, maxCount:1,
     nameEn:'White Wolf',      nameAr:'الذئب الأبيض',
     descEn:'You wake twice per night. First with all wolves to vote on a target. Then you wake alone and face a choice: do nothing and let the regular wolf kill happen, or override it and kill one of your own wolf teammates instead, cancelling the regular kill that night. After using this power you wait 2 nights before using it again. Remove a wolf who is close to being caught, gain the village trust by appearing to stop a kill, or sacrifice a weak wolf to protect yourself.',
-    descAr:'يستيقظ مع الذئاب، ثم يستيقظ مجددًا ليلغي القتل ويزيل زميلًا ذئبًا.' },
+    descAr:'يستيقظ مع الذئاب، ثم يستيقظ مجددًا ليلغي القتل ويزيل زميلًا ذئبًا.',
+    difficulty: 3 },
 
   { id:'alpha_wolf',    emoji:'👑', team:'Wolves',    wakes:true,  nightOrder:130, defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Alpha Wolf',      nameAr:'الذئب الألفا',
     descEn:'You wake every night with the wolf pack for the kill vote. Your special power: you can Suicide on any night, and can even kill a target AND suicide the same night. If you suicide next to the Hunting Dog (adjacent right), the Hunting Dog dies and pulls the next villager to their right down too, a chain kill. If the Hunting Dog correctly guesses you, you wake up, witness the result, then fall asleep — suicide replaces any further actions. The most dangerous wolf role in the game. Timing your suicide is everything.',
-    descAr:'تستيقظ كل ليلة مع الذئاب. قدرتك: تستطيع الانتحار أي ليلة، بل يمكنك قتل هدف والانتحار في نفس الليلة. إذا انتحرت بجانب كلب الصيد، يموت كلب الصيد ويجر معه القروي التالي على يمينه. إذا خمّن كلب الصيد بشكل صحيح، تستيقظ وترى النتيجة ثم تنام. أخطر دور ذئب في اللعبة. توقيت انتحارك هو كل شيء.' },
+    descAr:'تستيقظ كل ليلة مع الذئاب. قدرتك: تستطيع الانتحار أي ليلة، بل يمكنك قتل هدف والانتحار في نفس الليلة. إذا انتحرت بجانب كلب الصيد، يموت كلب الصيد ويجر معه القروي التالي على يمينه. إذا خمّن كلب الصيد بشكل صحيح، تستيقظ وترى النتيجة ثم تنام. أخطر دور ذئب في اللعبة. توقيت انتحارك هو كل شيء.',
+    difficulty: 3 },
+
+  { id:'infected_wolf', emoji:'🧫', team:'Wolves',    wakes:true,  nightOrder:45,  defaultCount:0, minCount:0, maxCount:1,
+    nameEn:'Infected Wolf',   nameAr:'الذئب المعدي',
+    descEn:'You wake with the wolf pack each night. Once per game, instead of the wolves killing their target, you can Infect them — secretly converting that player into a Simple Wolf. The infected player is quietly told by the host they have joined the wolves. This replaces the kill entirely that night: no one dies. You can still vote normally on other nights. Use this to flip a powerful villager role to your side — a well-timed infection can completely swing the game.',
+    descAr:'تستيقظ مع الذئاب كل ليلة. مرة واحدة في اللعبة، بدلاً من قتل الهدف، يمكنك إصابته — تحويله سراً إلى ذئب بسيط. يُبلّغ اللاعب المصاب بهدوء من المضيف بأنه انضم للذئاب. هذا يستبدل القتل كلياً تلك الليلة. استخدم هذا لتحويل دور قروي قوي لصفك — إصابة موقوتة جيداً يمكن أن تقلب مجرى اللعبة.',
+    difficulty: 3,
+    interactive: true, abilityLabel: 'Infect 🧫', abilityTag: 'infected' },
 
   // ─── VILLAGERS ───
   { id:'villager',      emoji:'👤', team:'Villagers', wakes:false, nightOrder:null, defaultCount:3, minCount:0, maxCount:12,
     nameEn:'Simple Villager', nameAr:'القروي العادي',
     descEn:'You have no special ability — but you are not powerless. Every night someone dies, and every day the village votes to eliminate a suspect. Your job: watch carefully. Who reacted strangely? Who pushed too hard for a vote? Who stayed quiet when they should have spoken? Share your reasoning, question others, and work together. The village wins or loses based on how well players like you think.',
-    descAr:'ليس لديك قدرة خاصة — لكنك لست عاجزاً. كل ليلة يموت شخص ما، وكل نهار تصوت القرية على استبعاد مشتبه به. مهمتك: راقب بدقة. من تصرف بشكل غريب؟ من دفع بقوة نحو تصويت معين؟ من بقي صامتاً حين كان يجب أن يتكلم؟ شارك تفكيرك، وتعاون.' },
+    descAr:'ليس لديك قدرة خاصة — لكنك لست عاجزاً. كل ليلة يموت شخص ما، وكل نهار تصوت القرية على استبعاد مشتبه به. مهمتك: راقب بدقة. من تصرف بشكل غريب؟ من دفع بقوة نحو تصويت معين؟ من بقي صامتاً حين كان يجب أن يتكلم؟ شارك تفكيرك، وتعاون.',
+    difficulty: 1 },
 
   { id:'witch',         emoji:'🧙', team:'Villagers', wakes:true,  nightOrder:80,  defaultCount:1, minCount:0, maxCount:1,
     nameEn:'Witch',           nameAr:'الساحرة',
     descEn:'Every night you wake up and are shown who the wolves just killed. You have two decisions: use your Revive potion to save that person, and/or use your Kill potion on any player you choose. You start with exactly 1 of each — once used, gone forever. You can use both the same night. You can revive yourself. You cannot use kill on Night 1. You see the wolf kill after the White Wolf may have changed it, but you do NOT see kills from Alpha Wolf suicide.',
-    descAr:'كل ليلة تستيقظين ويُريك المضيف من قتلته الذئاب للتو. لديك قراران: استخدام جرعة الإحياء لإنقاذ ذلك الشخص، و/أو استخدام جرعة القتل على أي لاعب. تبدئين بجرعة واحدة من كل — بعد استخدامها تختفي إلى الأبد. يمكنك استخدام الاثنتين في نفس الليلة. يمكنك إحياء نفسك. لا يمكن استخدام القتل في الليلة الأولى. ترين القتل بعد تغيير الذئب الأبيض، لكن لا ترين قتل انتحار الذئب الألفا.' },
+    descAr:'كل ليلة تستيقظين ويُريك المضيف من قتلته الذئاب للتو. لديك قراران: استخدام جرعة الإحياء لإنقاذ ذلك الشخص، و/أو استخدام جرعة القتل على أي لاعب. تبدئين بجرعة واحدة من كل — بعد استخدامها تختفي إلى الأبد. يمكنك استخدام الاثنتين في نفس الليلة. يمكنك إحياء نفسك. لا يمكن استخدام القتل في الليلة الأولى. ترين القتل بعد تغيير الذئب الأبيض، لكن لا ترين قتل انتحار الذئب الألفا.',
+    difficulty: 2 },
 
   { id:'saving',        emoji:'🛡️', team:'Villagers', wakes:true,  nightOrder:50,  defaultCount:1, minCount:0, maxCount:1,
     nameEn:'Saving',          nameAr:'المنقذ',
     descEn:'Each night you choose one player to protect. If any kill is attempted on them that night — wolves, Witch poison, anything — they survive. You can protect yourself. You cannot protect the same person two nights in a row, so you must alternate. You get no feedback on whether your target was actually attacked. The challenge is guessing who the wolves will go for before they do it.',
     descAr:'كل ليلة تختار لاعباً لحمايته. إذا تعرض لأي محاولة قتل تلك الليلة — الذئاب، سم الساحرة، أي شيء — ينجو. يمكنك حماية نفسك. لا يمكنك حماية نفس الشخص ليلتين متتاليتين، لذا يجب التناوب. لا تتلقى أي معلومة حول ما إذا تعرض هدفك للهجوم فعلاً. التحدي: تخمين من ستستهدفه الذئاب قبل أن تفعل.',
-    interactive: true, abilityLabel: 'Protect 🛡️', abilityTag: 'protected' },
+    interactive: true, abilityLabel: 'Protect 🛡️', abilityTag: 'protected', difficulty: 1 },
 
   { id:'seer',          emoji:'🔮', team:'Villagers', wakes:true,  nightOrder:90,  defaultCount:1, minCount:0, maxCount:1,
     nameEn:'Seer',            nameAr:'العرّافة',
     descEn:'Every night you point at one player and the host secretly tells you their true role. You are the most powerful information role in the game — if used well, you can identify wolves and guide the village to victory. One trap: the Blue Wolf shows as Villager on your very first check of them only. After that they show as Wolf. Share your findings carefully: the wolves will eliminate you the moment you reveal yourself.',
-    descAr:'كل ليلة تشيرين إلى لاعب واحد ويخبرك المضيف سراً بدوره الحقيقي. أنت الدور المعلوماتي الأقوى في اللعبة. فخ واحد: الذئب الأزرق يظهر كقروي في فحصك الأول فقط. بعده يظهر كذئب. شاركي نتائجك بحذر: الذئاب ستحاول إزالتك فور كشف نفسك.' },
+    descAr:'كل ليلة تشيرين إلى لاعب واحد ويخبرك المضيف سراً بدوره الحقيقي. أنت الدور المعلوماتي الأقوى في اللعبة. فخ واحد: الذئب الأزرق يظهر كقروي في فحصك الأول فقط. بعده يظهر كذئب. شاركي نتائجك بحذر: الذئاب ستحاول إزالتك فور كشف نفسك.',
+    difficulty: 2 },
 
   { id:'hunter',        emoji:'🏹', team:'Villagers', wakes:false, nightOrder:null, defaultCount:1, minCount:0, maxCount:2,
     nameEn:'Hunter',          nameAr:'الصياد',
     descEn:'You never wake at night. But the moment you die — killed by wolves, poisoned by the Witch, or voted out by the village — you immediately shoot and kill one player of your choice. Choose who. This makes you a dangerous target: wolves know eliminating you costs them a player too. Even if voted out during the day, you fire your shot before leaving. Pick wisely — it could decide the game.',
-    descAr:'أنت لا تستيقظ ليلاً. لكن في اللحظة التي تموت — قتلتك الذئاب، سمّتك الساحرة، أو طردتك القرية — تطلق فوراً النار وتقتل لاعباً من اختيارك. هذا يجعلك هدفاً خطيراً: الذئاب تعلم أن قتلك يكلفها لاعباً أيضاً. اختر بحكمة — قد تحسم اللعبة.' },
+    descAr:'أنت لا تستيقظ ليلاً. لكن في اللحظة التي تموت — قتلتك الذئاب، سمّتك الساحرة، أو طردتك القرية — تطلق فوراً النار وتقتل لاعباً من اختيارك. هذا يجعلك هدفاً خطيراً: الذئاب تعلم أن قتلك يكلفها لاعباً أيضاً. اختر بحكمة — قد تحسم اللعبة.',
+    difficulty: 1 },
 
   { id:'commissioner',  emoji:'⚖️', team:'Villagers', wakes:true,  nightOrder:30,  defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Commissioner',    nameAr:'المفوض',
     descEn:'Each night you choose one player to Jail. Jailing does two things: it protects them from all kills that night, AND it blocks their special power. The jailed player is told they were abducted if they would normally wake up. Cannot jail the same person twice in a row. Key strategic layer: from the target perspective, being jailed feels identical to being abducted by the Red Wolf — so no one knows who is responsible. You can jail villagers to protect them, or wolves to block their abilities.',
-    descAr:'كل ليلة تختار لاعباً لسجنه. السجن يفعل شيئين: يحميه من جميع عمليات القتل تلك الليلة، ويحجب قدرته الخاصة. يُبلّغ اللاعب المسجون بأنه اختُطف. لا يمكن سجن نفس الشخص مرتين متتاليتين. من منظور الهدف، السجن يبدو مطابقاً تماماً للاختطاف من الذئب الأحمر. يمكنك سجن قرويين لحمايتهم، أو ذئاب لحجب قدراتهم.' },
+    descAr:'كل ليلة تختار لاعباً لسجنه. السجن يفعل شيئين: يحميه من جميع عمليات القتل تلك الليلة، ويحجب قدرته الخاصة. يُبلّغ اللاعب المسجون بأنه اختُطف. لا يمكن سجن نفس الشخص مرتين متتاليتين. من منظور الهدف، السجن يبدو مطابقاً تماماً للاختطاف من الذئب الأحمر. يمكنك سجن قرويين لحمايتهم، أو ذئاب لحجب قدراتهم.',
+    difficulty: 3 },
 
   { id:'knight',        emoji:'⚔️', team:'Villagers', wakes:false, nightOrder:null, defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Knight',          nameAr:'الفارس',
     descEn:'You never wake at night — no active ability. But when you die for any reason, you automatically kill the nearest wolf sitting to your right in the original seating order. If the player immediately to your right is not a wolf, it skips them and finds the next wolf to the right. Seating is fixed from the very start. This invisible passive threat means wolves must think carefully about sitting near you.',
-    descAr:'لا تستيقظ ليلاً وليس لديك قدرة نشطة. لكن عند موتك لأي سبب، تقتل تلقائياً أقرب ذئب جالس على يمينك في دائرة الجلوس الأصلية. إذا كان الشخص مباشرةً على يمينك ليس ذئباً، تتجاوزه وتجد التالي. ترتيب الجلوس ثابت من البداية تماماً.' },
+    descAr:'لا تستيقظ ليلاً وليس لديك قدرة نشطة. لكن عند موتك لأي سبب، تقتل تلقائياً أقرب ذئب جالس على يمينك في دائرة الجلوس الأصلية. إذا كان الشخص مباشرةً على يمينك ليس ذئباً، تتجاوزه وتجد التالي. ترتيب الجلوس ثابت من البداية تماماً.',
+    difficulty: 1 },
 
   { id:'servant',       emoji:'🍺', team:'Villagers', wakes:true,  nightOrder:110, defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Servant',         nameAr:'الخادم',
     descEn:'Each night you choose one player to make Drunk. The next day they can talk and debate as normal — but they cannot cast a vote. A drunk Mayor loses their double vote but keeps order control. Cannot target jailed players. Use this to stop a suspected wolf from swinging a vote, neutralize an influential Mayor, or block someone you know is being manipulated.',
     descAr:'كل ليلة تختار لاعباً لجعله سكراناً. في اليوم التالي يستطيع الكلام والجدال بشكل طبيعي — لكن لا يستطيع التصويت. العمدة السكران يفقد تصويته المزدوج لكن يحتفظ بالتحكم في النقاش. لا يمكن استهداف لاعب مسجون.',
-    interactive: true, abilityLabel: 'Drunk 🍺', abilityTag: 'drunk' },
+    interactive: true, abilityLabel: 'Drunk 🍺', abilityTag: 'drunk', difficulty: 2 },
 
   { id:'supplier',      emoji:'📦', team:'Villagers', wakes:true,  nightOrder:75,  defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Supplier',        nameAr:'المزوّد',
     descEn:'Every night you wake up and the host checks whether you have found the Witch. Once you do, you give her one extra Revive and one extra Kill potion, doubling her power from 1+1 to 2+2. After that handoff you stop waking entirely. If the Witch dies before you find her (and Roles Declaration is off), you keep waking every night searching in vain. Your entire purpose is finding and empowering the Witch — simple but potentially game-changing.',
-    descAr:'كل ليلة تستيقظ ويتحقق المضيف مما إذا وجدت الساحرة. بمجرد العثور عليها، تمنحها جرعة إحياء إضافية وجرعة قتل إضافية، مضاعفاً قدرتها من 1+1 إلى 2+2. بعدها تتوقف عن الاستيقاظ نهائياً. هدفك كله إيجاد الساحرة وتمكينها — بسيط لكن يمكن أن يغيّر مجرى اللعبة.' },
+    descAr:'كل ليلة تستيقظ ويتحقق المضيف مما إذا وجدت الساحرة. بمجرد العثور عليها، تمنحها جرعة إحياء إضافية وجرعة قتل إضافية، مضاعفاً قدرتها من 1+1 إلى 2+2. بعدها تتوقف عن الاستيقاظ نهائياً. هدفك كله إيجاد الساحرة وتمكينها — بسيط لكن يمكن أن يغيّر مجرى اللعبة.',
+    difficulty: 1 },
 
   { id:'hunting_dog',   emoji:'🐕', team:'Villagers', wakes:true,  nightOrder:120, defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Hunting Dog',     nameAr:'كلب الصيد',
     descEn:'You are the direct counter to the Alpha Wolf. You act before them in the night order, meaning you get first strike. You can sacrifice yourself to name one player as the Alpha Wolf: if correct, both you and the Alpha Wolf die — a huge trade. If wrong, only you die. This is all-or-nothing: a wrong guess wastes your role entirely, but a correct guess eliminates the most dangerous wolf in the game before they can ever act.',
-    descAr:'أنت المواجه المباشر للذئب الألفا. تتصرف قبله في ترتيب الليل، أي تضرب أولاً. يمكنك التضحية بنفسك وتسمية لاعب كذئب ألفا: إن كنت محقاً يموت كلاكما — صفقة ضخمة. إن كنت مخطئاً، تموت أنت فقط. مقامرة كل شيء أو لا شيء: الخطأ يهدر دورك كلياً، والصحيح يزيل أخطر ذئب قبل أن يتصرف.' },
+    descAr:'أنت المواجه المباشر للذئب الألفا. تتصرف قبله في ترتيب الليل، أي تضرب أولاً. يمكنك التضحية بنفسك وتسمية لاعع كذئب ألفا: إن كنت محقاً يموت كلاكما — صفقة ضخمة. إن كنت مخطئاً، تموت أنت فقط. مقامرة كل شيء أو لا شيء: الخطأ يهدر دورك كلياً، والصحيح يزيل أخطر ذئب قبل أن يتصرف.',
+    difficulty: 2 },
 
   { id:'ancient',       emoji:'👴', team:'Villagers', wakes:false, nightOrder:null, defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Ancient',         nameAr:'الشيخ',
     descEn:'You have a passive shield: the first two times any kill is attempted on you — wolves, Witch, anyone — you simply survive. Abduction and jailing do NOT use up a shield. The danger is your curse: if the village ever votes you out, your role is revealed AND every villager permanently loses their special power for the rest of the game. Wolves keep all abilities. The village must never vote you out even under suspicion — the cost is too catastrophic.',
-    descAr:'لديك درع سلبي: المرتين الأولى والثانية اللتين يحاول فيهما أي شخص قتلك — تنجو ببساطة. الاختطاف والسجن لا يستهلكان الدرع. الخطر يكمن في لعنتك: إذا صوتت القرية على طردك، يُكشف دورك ويفقد كل قروي قدرته الخاصة نهائياً. الذئاب تحتفظ بكل شيء. لا تستهدفه أبداً.' },
+    descAr:'لديك درع سلبي: المرتين الأولى والثانية اللتين يحاول فيهما أي شخص قتلك — تنجو ببساطة. الاختطاف والسجن لا يستهلكان الدرع. الخطر يكمن في لعنتك: إذا صوتت القرية على طردك، يُكشف دورك ويفقد كل قروي قدرته الخاصة نهائياً. الذئاب تحتفظ بكل شيء. لا تستهدفه أبداً.',
+    difficulty: 1 },
+
+  { id:'little_girl',   emoji:'🔦', team:'Villagers', wakes:false, nightOrder:null, defaultCount:0, minCount:0, maxCount:1,
+    nameEn:'Little Girl',     nameAr:'الفتاة الصغيرة',
+    descEn:'You have no night action — but you are allowed to secretly peek during the wolf phase. If you peek and a wolf catches you (host decides, usually if you move or are spotted), you die instantly instead of the wolf\'s original target. High risk, high reward: a successful peek gives you real intel on who the wolves chose, but getting caught flips the kill to you. The host must manage the peeking window carefully.',
+    descAr:'ليس لديك إجراء ليلي — لكن يُسمح لكِ بالتلصص سراً أثناء مرحلة الذئاب. إذا تلصصتِ وضبطكِ ذئب (يقرر المضيف، عادةً إن تحركتِ أو لُوحظتِ)، تموتين فوراً بدلاً من الهدف الأصلي. مخاطرة كبيرة ومكافأة كبيرة: التلصص الناجح يمنحكِ معلومات حقيقية، لكن الانكشاف يقلب القتل عليكِ.',
+    difficulty: 2 },
+
+  { id:'bear_tamer',    emoji:'🐻', team:'Villagers', wakes:false, nightOrder:null, defaultCount:0, minCount:0, maxCount:1,
+    nameEn:'Bear Tamer',      nameAr:'مروّض الدب',
+    descEn:'Completely passive — you never wake at night. But every morning, the host checks your two immediate neighbors (left and right in the seating circle). If either neighbor is a wolf of any kind, the host announces a bear growl to the whole village. No growl means both neighbors are safe. Wolves must avoid sitting next to you or risk exposing themselves. The village gains positional information every single day without you doing anything.',
+    descAr:'سلبي تماماً — لا تستيقظ ليلاً أبداً. لكن كل صباح، يتحقق المضيف من جارَيك المباشرَين (يساراً ويميناً في دائرة الجلوس). إذا كان أي منهما ذئباً من أي نوع، يُعلن المضيف زئير دب للقرية كلها. لا زئير يعني أن كلا الجارَين آمنَان. الذئاب يجب تجنب الجلوس بجانبك وإلا كشفوا أنفسهم.',
+    difficulty: 1 },
+
+  { id:'fox',           emoji:'🦊', team:'Villagers', wakes:true,  nightOrder:35,  defaultCount:0, minCount:0, maxCount:1,
+    nameEn:'Fox',             nameAr:'الثعلب',
+    descEn:'Each night you wake and choose any 3 players to sniff as a group. The host tells you privately: YES if at least one of the three is a wolf, NO if none are. If the answer is NO, you permanently lose your sniffing ability — but your card shows a Lost Nose tag so the host remembers. If YES, you gain nothing automatically but you know a wolf is somewhere in that group. The ability stays active even after losing it so the host can keep track.',
+    descAr:'كل ليلة تستيقظ وتختار 3 لاعبين لشمّهم كمجموعة. يخبرك المضيف سراً: نعم إذا كان أحدهم على الأقل ذئباً، لا إذا لم يكن أي منهم ذئباً. إذا كانت الإجابة لا، تفقد قدرة الشمّ نهائياً — لكن بطاقتك تُظهر علامة "فقد الأنف" حتى يتذكر المضيف. القدرة تبقى نشطة بعد فقدانها حتى يتمكن المضيف من المتابعة.',
+    interactive: true, abilityLabel: 'Sniff 🦊', difficulty: 3 },
+
+  { id:'devoted_servant', emoji:'🎀', team:'Villagers', wakes:false, nightOrder:null, defaultCount:0, minCount:0, maxCount:1,
+    nameEn:'Devoted Servant', nameAr:'الخادمة المخلصة',
+    descEn:'You never act at night. Your power triggers during the day: when a player is voted out and their role is publicly revealed, you may immediately announce you are the Devoted Servant and take their role. You discard your current role and gain their full role — including all remaining abilities — as if you were always that role. The voted-out player still leaves. One use, but the timing is entirely yours. Use it to save a powerful role like the Seer or Witch from being eliminated.',
+    descAr:'لا تتصرف ليلاً. قدرتك تُفعَّل أثناء النهار: عندما يُطرد لاعع وتُكشف هويته علناً، يمكنك الإعلان فوراً أنك الخادمة المخلصة وأخذ دوره. تتخلى عن دورك الحالي وتكتسب دوره كاملاً كما لو كنتِ دائماً في ذلك الدور. اللاعع المطرود يغادر كالمعتاد. استخدام واحد، لكن التوقيت بيدكِ تماماً.',
+    interactive: true, abilityLabel: 'Take Role 🎀', difficulty: 3 },
 
   // ─── SPECIAL ───
   { id:'cupid',         emoji:'💘', team:'Special',   wakes:true,  nightOrder:20,  defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Cupid',           nameAr:'كيوبيد',
     descEn:'On Night 1 only, you secretly choose any two players and link them as Lovers — you can even include yourself. The two lovers are privately told who the other is and their role. From that point, lovers have one win condition: they can only win if they are the last two players alive together, overriding everything else. If either dies, the other dies immediately too. Exception: if both players you link are wolves, the lovers win condition does not apply and they just play as normal wolves.',
     descAr:'في الليلة الأولى فقط، تختار سراً أي لاعبين وتربطهما — يمكنك تضمين نفسك. يُبلّغ العاشقان بهوية ودور بعضهما سراً. من تلك اللحظة، شرط فوزهما: يفوزان فقط إذا كانا آخر لاعبين حيين معاً، متجاوزاً كل شيء آخر. إذا مات أحدهما، يموت الآخر فوراً. استثناء: إذا كلاهما ذئبان، لا تُطبّق حالة الفوز هذه.',
-    interactive: true, abilityLabel: 'Link Lovers 💘' },
+    interactive: true, abilityLabel: 'Link Lovers 💘', difficulty: 2 },
 
   { id:'wild_child',    emoji:'👶', team:'Special',   wakes:true,  nightOrder:10,  defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Wild Child',      nameAr:'الطفل البري',
     descEn:'During Nights 1 and 2 you secretly choose one player as your father figure. Nothing changes immediately. But if your father dies at any point in the game, you immediately become a Simple Wolf and join the wolf team. Even if you pick the Alpha Wolf as father, you still become only a Simple Wolf. Choose someone who will survive a long time — or time the reveal strategically if you want to switch sides. You have two nights to decide.',
     descAr:'خلال الليلتين 1 و 2 تختار سراً لاعباً أباً لك. لا يتغير شيء فوراً. لكن إذا مات أبوك في أي لحظة، تتحول فوراً إلى ذئب بسيط وتنضم للذئاب. اختر شخصاً من المرجح بقاؤه — لديك ليلتان للتقرير.',
-    interactive: true, abilityLabel: 'Choose Father 👨' },
+    interactive: true, abilityLabel: 'Choose Father 👨', difficulty: 2 },
+
+  { id:'piper',         emoji:'🪕', team:'Special',   wakes:true,  nightOrder:25,  defaultCount:0, minCount:0, maxCount:1,
+    nameEn:'Piper',           nameAr:'عازف الناي',
+    descEn:'Each night you wake and enchant exactly 2 alive players. They receive the Enchanted tag permanently — it never clears. Once ALL living players are enchanted, you win alone regardless of teams. If the Piper dies, all Enchanted tags are removed from everyone instantly. The village has no way to know who is enchanted or how many remain un-enchanted — only the host can see the tags. Play it slow and spread enchantments carefully across many nights.',
+    descAr:'كل ليلة تستيقظ وتسحر بالضبط لاعبَين حيَّين. يحصلان على علامة "مسحور" بشكل دائم — لا تُزال أبداً. بمجرد أن يصبح جميع اللاعبين الأحياء مسحورين، تفوز وحدك بغض النظر عن الفرق. إذا مات عازف الناي، تُزال جميع علامات "مسحور" فوراً. القرية لا تعلم من هو مسحور — المضيف فقط يرى العلامات.',
+    interactive: true, abilityLabel: 'Enchant 🪕', difficulty: 3 },
 
   { id:'schizophrenic', emoji:'🎭', team:'Special',   wakes:true,  nightOrder:115, defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Schizophrenic',   nameAr:'المتقلب',
     descEn:'During Nights 1 and 2 you can choose any role in the game to copy. You instantly gain that role full abilities as if assigned from the start, with a completely fresh set. One risk: if the player whose role you copied dies that same night, you lose the copied role and become a Simple Villager permanently. After Night 2 you keep whatever role you last copied. Great for doubling up on a key role like Seer or Witch when they seem in danger.',
-    descAr:'خلال الليلتين 1 و 2 يمكنك اختيار أي دور في اللعبة لنسخه. تكتسب فوراً قدراته كاملةً جديدة. خطر واحد: إذا مات اللاعب المنسوخ دوره تلك الليلة، تفقد الدور وتصبح قروياً بسيطاً للأبد. بعد الليلة 2 تحتفظ بآخر دور نسخته. رائع لمضاعفة دور حاسم كالعرّافة أو الساحرة حين يبدوان في خطر.',
-    interactive: true, abilityLabel: 'Copy Role 🎭' },
+    descAr:'خلال الليلتين 1 و 2 يمكنك اختيار أي دور في اللعبة لنسخه. تكتسب فوراً قدراته كاملةً جديدة. خطر واحد: إذا مات اللاعع المنسوخ دوره تلك الليلة، تفقد الدور وتصبح قروياً بسيطاً للأبد. بعد الليلة 2 تحتفظ بآخر دور نسخته. رائع لمضاعفة دور حاسم كالعرّافة أو الساحرة حين يبدوان في خطر.',
+    interactive: true, abilityLabel: 'Copy Role 🎭', difficulty: 3 },
 
   { id:'crow',          emoji:'🦅', team:'Special',   wakes:false, nightOrder:null, defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Crow',            nameAr:'الغراب',
     descEn:'Unlike every other role, you act during the DAY not at night. Before the village vote begins, secretly tell the host to place +2 extra votes on one specific player. When counting starts, that player silently begins with 2 votes already against them, which can easily tip a close vote into an elimination. You can target the same person multiple days in a row. You cannot target yourself. Nobody knows the Crow exists or who they target unless you reveal yourself.',
-    descAr:'على عكس كل الأدوار الأخرى، تتصرف أثناء النهار وليس الليل. قبل بدء التصويت، أخبر المضيف سراً بوضع +2 صوت إضافي ضد لاعب محدد. عند بدء العد، يبدأ ذلك اللاعب بتصويتين ضده بصمت، مما يحسم بسهولة تصويتاً متقارباً. يمكنك استهداف نفس الشخص أياماً متتالية. لا أحد يعلم بوجودك إلا إذا كشفت عن نفسك.' },
+    descAr:'على عكس كل الأدوار الأخرى، تتصرف أثناء النهار وليس الليل. قبل بدء التصويت، أخبر المضيف سراً بوضع +2 صوت إضافي ضد لاعب محدد. عند بدء العد، يبدأ ذلك اللاعع بتصويتين ضده بصمت، مما يحسم بسهولة تصويتاً متقارباً. يمكنك استهداف نفس الشخص أياماً متتالية. لا أحد يعلم بوجودك إلا إذا كشفت عن نفسك.',
+    difficulty: 2 },
 ];
 
 // Night order sequence (all possible steps)
 const NIGHT_SEQUENCE = [
-  { key:'wild_child',   emoji:'👶', nameEn:'Wild Child',    nameAr:'الطفل البري',     isWolf:false },
-  { key:'cupid',        emoji:'💘', nameEn:'Cupid',         nameAr:'كيوبيد',          isWolf:false },
-  { key:'commissioner', emoji:'⚖️', nameEn:'Commissioner',  nameAr:'المفوض',           isWolf:false },
-  { key:'red_wolf',     emoji:'❤️', nameEn:'Red Wolf',      nameAr:'الذئب الأحمر',    isWolf:true  },  // 40
-  { key:'saving',       emoji:'🛡️', nameEn:'Saving',        nameAr:'المنقذ',           isWolf:false },  // 50
-  { key:'all_wolves',   emoji:'🐺', nameEn:'All Wolves',    nameAr:'جميع الذئاب',     isWolf:true  },  // 60
-  { key:'white_wolf',   emoji:'🤍', nameEn:'White Wolf',    nameAr:'الذئب الأبيض',    isWolf:true  },  // 70
-  { key:'supplier',     emoji:'📦', nameEn:'Supplier',      nameAr:'المزوّد',          isWolf:false },
-  { key:'witch',        emoji:'🧙', nameEn:'Witch',         nameAr:'الساحرة',          isWolf:false },  // 80
-  { key:'seer',         emoji:'🔮', nameEn:'Seer',          nameAr:'العرّافة',         isWolf:false },
-  { key:'black_wolf',   emoji:'🖤', nameEn:'Black Wolf',    nameAr:'الذئب الأسود',    isWolf:true  },
-  { key:'servant',      emoji:'🍺', nameEn:'Servant',       nameAr:'الخادم',           isWolf:false },
-  { key:'schizophrenic',emoji:'🎭', nameEn:'Schizophrenic', nameAr:'المتقلب',          isWolf:false },
-  { key:'hunting_dog',  emoji:'🐕', nameEn:'Hunting Dog',   nameAr:'كلب الصيد',        isWolf:false },
-  { key:'alpha_wolf',   emoji:'👑', nameEn:'Alpha Wolf',    nameAr:'الذئب الألفا',    isWolf:true  },
+  { key:'wild_child',    emoji:'👶', nameEn:'Wild Child',      nameAr:'الطفل البري',      isWolf:false },  // 10
+  { key:'cupid',         emoji:'💘', nameEn:'Cupid',           nameAr:'كيوبيد',            isWolf:false },  // 20
+  { key:'piper',         emoji:'🪕', nameEn:'Piper',           nameAr:'عازف الناي',        isWolf:false },  // 25
+  { key:'commissioner',  emoji:'⚖️', nameEn:'Commissioner',    nameAr:'المفوض',             isWolf:false },  // 30
+  { key:'fox',           emoji:'🦊', nameEn:'Fox',             nameAr:'الثعلب',             isWolf:false },  // 35
+  { key:'red_wolf',      emoji:'❤️', nameEn:'Red Wolf',        nameAr:'الذئب الأحمر',      isWolf:true  },  // 40
+  { key:'infected_wolf', emoji:'🧫', nameEn:'Infected Wolf',   nameAr:'الذئب المعدي',      isWolf:true  },  // 45
+  { key:'saving',        emoji:'🛡️', nameEn:'Saving',          nameAr:'المنقذ',             isWolf:false },  // 50
+  { key:'all_wolves',    emoji:'🐺', nameEn:'All Wolves',      nameAr:'جميع الذئاب',       isWolf:true  },  // 60
+  { key:'white_wolf',    emoji:'🤍', nameEn:'White Wolf',      nameAr:'الذئب الأبيض',      isWolf:true  },  // 70
+  { key:'supplier',      emoji:'📦', nameEn:'Supplier',        nameAr:'المزوّد',            isWolf:false },  // 75
+  { key:'witch',         emoji:'🧙', nameEn:'Witch',           nameAr:'الساحرة',            isWolf:false },  // 80
+  { key:'seer',          emoji:'🔮', nameEn:'Seer',            nameAr:'العرّافة',           isWolf:false },  // 90
+  { key:'black_wolf',    emoji:'🖤', nameEn:'Black Wolf',      nameAr:'الذئب الأسود',      isWolf:true  },  // 100
+  { key:'servant',       emoji:'🍺', nameEn:'Servant',         nameAr:'الخادم',             isWolf:false },  // 110
+  { key:'schizophrenic', emoji:'🎭', nameEn:'Schizophrenic',   nameAr:'المتقلب',            isWolf:false },  // 115
+  { key:'hunting_dog',   emoji:'🐕', nameEn:'Hunting Dog',     nameAr:'كلب الصيد',          isWolf:false },  // 120
+  { key:'alpha_wolf',    emoji:'👑', nameEn:'Alpha Wolf',      nameAr:'الذئب الألفا',      isWolf:true  },  // 130
 ];
 
 // ═══════════════════════════════════════════════════════
@@ -1045,6 +1213,7 @@ let state = {
   currentStep: 0,
   wildChildFatherId: null,  // player name
   lovers: [],               // [nameA, nameB]
+  mayorId: null,            // player name who is mayor
 };
 
 // init role counts
@@ -1085,6 +1254,15 @@ function killPlayer(name) {
       state.playerStatus[wc.name].tags.add('wolf-turn');
     }
   }
+  // Piper dies -> remove all enchanted tags
+  const deadA = state.assignments.find(a => a.name === name);
+  if (deadA && deadA.roleId === 'piper') {
+    state.assignments.forEach(a => {
+      if (state.playerStatus[a.name]) state.playerStatus[a.name].tags.delete('enchanted');
+    });
+  }
+  // Clear mayor if mayor dies
+  if (state.mayorId === name) state.mayorId = null;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1215,6 +1393,7 @@ function assignAndStart() {
   state.currentStep = 0;
   state.wildChildFatherId = null;
   state.lovers = [];
+  state.mayorId = null;
   switchToGame();
 }
 
@@ -1295,6 +1474,7 @@ function renderPlayerList() {
         </div>
         <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
           ${actionBtn}
+          <button class="mayor-btn ${state.mayorId === a.name ? 'is-mayor' : ''}" onclick="toggleMayor('${escName(a.name)}')">👑 Mayor</button>
           <button class="assign-copy-btn" id="${copyBtnId}" onclick="copyPlayerRole('${escName(a.name)}','${copyBtnId}')">📋</button>
         </div>
       </div>`;
@@ -1303,12 +1483,16 @@ function renderPlayerList() {
 
 function buildTagsHtml(name, ps) {
   const tags = [];
-  if (!ps.alive)            tags.push(`<span class="status-tag tag-dead">☠️ Mort</span>`);
-  if (state.lovers.includes(name)) tags.push(`<span class="status-tag tag-love">❤️ In Love</span>`);
-  if (ps.tags.has('drunk'))     tags.push(`<span class="status-tag tag-drunk">🍺 Drunk</span>`);
-  if (ps.tags.has('protected')) tags.push(`<span class="status-tag tag-protected">🛡️ Protected</span>`);
-  if (ps.tags.has('silenced'))  tags.push(`<span class="status-tag tag-silenced">🔇 Silenced</span>`);
-  if (ps.tags.has('wolf-turn')) tags.push(`<span class="status-tag tag-wolf-turn">🐺 Turned Wolf</span>`);
+  if (!ps.alive)                    tags.push(`<span class="status-tag tag-dead">☠️ Mort</span>`);
+  if (state.mayorId === name)       tags.push(`<span class="status-tag tag-mayor">👑 Mayor</span>`);
+  if (state.lovers.includes(name))  tags.push(`<span class="status-tag tag-love">❤️ In Love</span>`);
+  if (ps.tags.has('drunk'))         tags.push(`<span class="status-tag tag-drunk">🍺 Drunk</span>`);
+  if (ps.tags.has('protected'))     tags.push(`<span class="status-tag tag-protected">🛡️ Protected</span>`);
+  if (ps.tags.has('silenced'))      tags.push(`<span class="status-tag tag-silenced">🔇 Silenced</span>`);
+  if (ps.tags.has('wolf-turn'))     tags.push(`<span class="status-tag tag-wolf-turn">🐺 Turned Wolf</span>`);
+  if (ps.tags.has('infected'))      tags.push(`<span class="status-tag tag-infected">🧫 Infected</span>`);
+  if (ps.tags.has('enchanted'))     tags.push(`<span class="status-tag tag-enchanted">🪕 Enchanted</span>`);
+  if (ps.tags.has('nonose'))        tags.push(`<span class="status-tag tag-nonose">🚫 Lost Nose</span>`);
   return tags.length ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">${tags.join('')}</div>` : '';
 }
 
@@ -1344,7 +1528,7 @@ function copyPlayerRole(name, btnId) {
 
 // ─── NIGHT ORDER (col 2) ───
 function getActiveSteps() {
-  const wolfIds = ['simple_wolf','black_wolf','blue_wolf','red_wolf','white_wolf','alpha_wolf'];
+  const wolfIds = ['simple_wolf','black_wolf','blue_wolf','red_wolf','white_wolf','alpha_wolf','infected_wolf'];
   const hasAliveRole = id => state.assignments.some(a => a.roleId === id && isAlive(a.name));
   const hasAnyAliveWolf = () => wolfIds.some(id => state.assignments.some(a => a.roleId === id && isAlive(a.name)));
 
@@ -1389,7 +1573,7 @@ function renderNightOrder() {
 }
 
 function getPlayersForStep(key) {
-  const wolfIds = ['simple_wolf','black_wolf','blue_wolf','red_wolf','white_wolf','alpha_wolf'];
+  const wolfIds = ['simple_wolf','black_wolf','blue_wolf','red_wolf','white_wolf','alpha_wolf','infected_wolf'];
   if (key === 'all_wolves') {
     return state.assignments
       .filter(a => wolfIds.includes(a.roleId) && isAlive(a.name))
@@ -1416,10 +1600,14 @@ function openAbilityModal(name) {
   const role = roleById(a.roleId);
   if (!role || !role.interactive) return;
 
-  if (role.id === 'wild_child')    openWildChildModal(name);
-  else if (role.id === 'cupid')    openCupidModal(name);
+  if (role.id === 'wild_child')       openWildChildModal(name);
+  else if (role.id === 'cupid')       openCupidModal(name);
   else if (role.id === 'schizophrenic') openSchizoModal(name);
-  else if (role.abilityTag)        openTagModal(name, role);
+  else if (role.id === 'piper')       openPiperModal(name);
+  else if (role.id === 'fox')         openFoxModal(name);
+  else if (role.id === 'infected_wolf') openInfectModal(name);
+  else if (role.id === 'devoted_servant') openDevotedModal(name);
+  else if (role.abilityTag)           openTagModal(name, role);
 }
 
 // ─── TAG ABILITY (black wolf / servant / saving) ───
@@ -1602,19 +1790,23 @@ function renderGuide(filter) {
   const el = $('guideGrid');
   if (!el) return;
   const list = filter === 'all' ? ROLES : ROLES.filter(r => r.team === filter);
-  el.innerHTML = list.map(role => `
+  el.innerHTML = list.map(role => {
+    const diff = role.difficulty || 1;
+    const stars = [1,2,3].map(n => `<span class="diff-star ${n<=diff?'lit':''}">★</span>`).join('');
+    return `
     <div class="guide-card">
       <div class="guide-card-top">
         <span class="guide-card-emoji">${role.emoji}</span>
         <div>
-          <div class="guide-card-name-en">${role.nameEn}</div>
+          <div class="guide-card-name-en">${role.nameEn} <span class="diff-stars">${stars}</span></div>
           <div class="guide-card-name-ar">${role.nameAr}</div>
         </div>
         <span class="role-team-badge badge-${role.team.toLowerCase()}" style="margin-left:auto;">${role.wakes?'🌙':'😴'}</span>
       </div>
       <div class="guide-card-desc-en">${role.descEn}</div>
       <div class="guide-card-desc-ar">${role.descAr}</div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1626,6 +1818,300 @@ function closeModal(e) {
 }
 
 function escId(name) { return name.replace(/[^a-zA-Z0-9]/g, '_'); }
+
+// ═══════════════════════════════════════════════════════
+//  MAYOR
+// ═══════════════════════════════════════════════════════
+function toggleMayor(name) {
+  state.mayorId = (state.mayorId === name) ? null : name;
+  renderGame();
+}
+
+// ═══════════════════════════════════════════════════════
+//  TIMER
+// ═══════════════════════════════════════════════════════
+let timerInterval = null;
+let timerRemaining = 0;
+let timerRunning = false;
+
+function timerStartPause() {
+  if (timerRunning) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    $('timerPlayBtn').textContent = '▶';
+    $('timerDisplay').classList.remove('running');
+  } else {
+    if (timerRemaining <= 0) {
+      const m = parseInt($('timerMin').value) || 0;
+      const s = parseInt($('timerSec').value) || 0;
+      timerRemaining = m * 60 + s;
+    }
+    if (timerRemaining <= 0) return;
+    timerRunning = true;
+    $('timerPlayBtn').textContent = '⏸';
+    $('timerDisplay').classList.add('running');
+    timerInterval = setInterval(() => {
+      timerRemaining--;
+      updateTimerDisplay();
+      if (timerRemaining <= 0) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        $('timerPlayBtn').textContent = '▶';
+        $('timerDisplay').classList.remove('running');
+        $('timerDisplay').classList.add('urgent');
+        setTimeout(() => $('timerDisplay').classList.remove('urgent'), 4000);
+      }
+    }, 1000);
+    updateTimerDisplay();
+  }
+}
+
+function timerReset() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerRemaining = 0;
+  $('timerPlayBtn').textContent = '▶';
+  $('timerDisplay').textContent = '–:––';
+  $('timerDisplay').className = 'timer-display';
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timerRemaining / 60);
+  const s = timerRemaining % 60;
+  $('timerDisplay').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  if (timerRemaining <= 10 && timerRunning) {
+    $('timerDisplay').classList.add('urgent');
+  } else {
+    $('timerDisplay').classList.remove('urgent');
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  LAYOUT CODE
+// ═══════════════════════════════════════════════════════
+function exportLayoutCode() {
+  // Build array of [roleId, count] for roles with count > 0, encode compactly
+  const entries = ROLES
+    .map(r => [r.id, state.roleCounts[r.id]])
+    .filter(([,c]) => c > 0);
+  // Encode: use index in ROLES array + count, base36
+  const parts = entries.map(([id, c]) => {
+    const idx = ROLES.findIndex(r => r.id === id);
+    return idx.toString(36) + c.toString(36);
+  });
+  const code = parts.join('-');
+  const inp = $('layoutCodeInput');
+  inp.value = code;
+  navigator.clipboard.writeText(code).catch(() => {});
+  showCodeAlert('✓ Code copied to clipboard!', 'ok');
+}
+
+function importLayoutCode() {
+  const code = $('layoutCodeInput').value.trim();
+  if (!code) { showCodeAlert('⚠ Paste a code first', 'err'); return; }
+  try {
+    // Reset all to 0
+    ROLES.forEach(r => { state.roleCounts[r.id] = 0; });
+    const parts = code.split('-');
+    parts.forEach(p => {
+      // each part: first char = index base36, rest = count base36
+      const idx = parseInt(p[0], 36);
+      const cnt = parseInt(p.slice(1), 36);
+      if (ROLES[idx] && !isNaN(cnt)) {
+        state.roleCounts[ROLES[idx].id] = Math.min(cnt, ROLES[idx].maxCount);
+      }
+    });
+    renderRolesList();
+    showCodeAlert('✓ Layout imported!', 'ok');
+  } catch(e) {
+    showCodeAlert('⚠ Invalid code', 'err');
+  }
+}
+
+function showCodeAlert(msg, type) {
+  const el = $('codeAlertEl');
+  if (el) {
+    el.innerHTML = `<div class="alert alert-${type}" style="margin-top:8px;">${msg}</div>`;
+    setTimeout(() => { if(el) el.innerHTML = ''; }, 3000);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  PIPER MODAL
+// ═══════════════════════════════════════════════════════
+let piperSelected = [];
+function openPiperModal(actorName) {
+  piperSelected = [];
+  $('modalTitle').innerHTML = `🪕 Piper — Enchant`;
+  renderPiperModal(actorName);
+  openModal();
+}
+
+function renderPiperModal(actorName) {
+  const alive = getAlivePlayers().filter(a => a.name !== actorName);
+  $('modalBody').innerHTML = `
+    <p>Sélectionnez 2 joueurs à enchanter (permanent jusqu'à la mort du Piper).</p>
+    <div class="modal-select-list">
+      ${alive.map(a => {
+        const enchanted = state.playerStatus[a.name]?.tags.has('enchanted');
+        const sel = piperSelected.includes(a.name);
+        return `
+          <div class="modal-player-row ${sel ? 'selected' : ''}" onclick="togglePiperSelect('${escName(a.name)}','${escName(actorName)}')">
+            <span class="mpr-name">${a.name}</span>
+            <span class="mpr-role">${roleById(a.roleId)?.emoji} ${roleById(a.roleId)?.nameEn}</span>
+            ${enchanted ? '<span class="status-tag tag-enchanted" style="font-size:0.6em;">🪕 Enchanted</span>' : ''}
+            ${sel ? '<span class="status-tag tag-enchanted" style="font-size:0.6em;">✓ Selected</span>' : ''}
+          </div>`;
+      }).join('')}
+    </div>
+    <button class="modal-confirm-btn" onclick="confirmPiper('${escName(actorName)}')"
+      ${piperSelected.length !== 2 ? 'disabled' : ''}>
+      🪕 Enchant (${piperSelected.length}/2)
+    </button>
+  `;
+}
+
+function togglePiperSelect(name, actorName) {
+  if (piperSelected.includes(name)) {
+    piperSelected = piperSelected.filter(n => n !== name);
+  } else {
+    if (piperSelected.length < 2) piperSelected.push(name);
+  }
+  renderPiperModal(actorName);
+}
+
+function confirmPiper(actorName) {
+  if (piperSelected.length !== 2) return;
+  piperSelected.forEach(name => state.playerStatus[name]?.tags.add('enchanted'));
+  closeModal();
+  renderGame();
+}
+
+// ═══════════════════════════════════════════════════════
+//  FOX MODAL
+// ═══════════════════════════════════════════════════════
+let foxSelected = [];
+function openFoxModal(actorName) {
+  foxSelected = [];
+  const foxA = state.assignments.find(a => a.name === actorName);
+  const hasLostNose = state.playerStatus[actorName]?.tags.has('nonose');
+  $('modalTitle').innerHTML = `🦊 Fox — Sniff`;
+  $('modalBody').innerHTML = `
+    <p>${hasLostNose ? '⚠️ Lost Nose — ability gone, but record the sniff anyway.' : 'Sélectionnez 3 joueurs à flairer. Le meneur confirme YES/NO en privé.'}</p>
+    <div class="modal-select-list" id="foxList"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+      <button class="modal-confirm-btn" style="flex:1;" onclick="confirmFox('${escName(actorName)}',true)">🐺 YES — Wolf found</button>
+      <button class="modal-confirm-btn" style="flex:1;background:var(--surface2);border-color:var(--border);" onclick="confirmFox('${escName(actorName)}',false)">✗ NO — No wolf</button>
+    </div>
+  `;
+  renderFoxList(actorName);
+  openModal();
+}
+
+function renderFoxList(actorName) {
+  const alive = getAlivePlayers().filter(a => a.name !== actorName);
+  const el = $('foxList');
+  if (!el) return;
+  el.innerHTML = alive.map(a => {
+    const sel = foxSelected.includes(a.name);
+    return `
+      <div class="modal-player-row ${sel ? 'selected' : ''}" onclick="toggleFoxSelect('${escName(a.name)}','${escName(actorName)}')">
+        <span class="mpr-name">${a.name}</span>
+        <span class="mpr-role">${roleById(a.roleId)?.emoji} ${roleById(a.roleId)?.nameEn}</span>
+        ${sel ? '<span class="status-tag tag-protected" style="font-size:0.6em;">👃 Sniffed</span>' : ''}
+      </div>`;
+  }).join('');
+}
+
+function toggleFoxSelect(name, actorName) {
+  if (foxSelected.includes(name)) {
+    foxSelected = foxSelected.filter(n => n !== name);
+  } else {
+    if (foxSelected.length < 3) foxSelected.push(name);
+  }
+  renderFoxList(actorName);
+}
+
+function confirmFox(actorName, wolfFound) {
+  if (!wolfFound) {
+    // Lost nose
+    state.playerStatus[actorName]?.tags.add('nonose');
+  }
+  foxSelected = [];
+  closeModal();
+  renderGame();
+}
+
+// ═══════════════════════════════════════════════════════
+//  INFECTED WOLF MODAL
+// ═══════════════════════════════════════════════════════
+function openInfectModal(actorName) {
+  const alive = getAlivePlayers().filter(a => a.name !== actorName);
+  $('modalTitle').innerHTML = `🧫 Infected Wolf — Infect`;
+  $('modalBody').innerHTML = `
+    <p>Sélectionnez le joueur à infecter (le convertit en Loup Simple, remplace le kill ce soir).</p>
+    <div class="modal-select-list">
+      ${alive.map(a => {
+        const infected = state.playerStatus[a.name]?.tags.has('infected');
+        return `
+          <div class="modal-player-row ${infected ? 'selected' : ''}" onclick="confirmInfect('${escName(a.name)}','${escName(actorName)}')">
+            <span class="mpr-name">${a.name}</span>
+            <span class="mpr-role">${roleById(a.roleId)?.emoji} ${roleById(a.roleId)?.nameEn}</span>
+            ${infected ? '<span class="status-tag tag-infected" style="font-size:0.6em;">🧫 Infected</span>' : ''}
+          </div>`;
+      }).join('')}
+    </div>
+    <button class="modal-confirm-btn" onclick="closeModal()">✕ Fermer</button>
+  `;
+  openModal();
+}
+
+function confirmInfect(targetName, actorName) {
+  // Remove previous infected tag from everyone
+  state.assignments.forEach(a => state.playerStatus[a.name]?.tags.delete('infected'));
+  // Tag this player
+  state.playerStatus[targetName]?.tags.add('infected');
+  // Convert to simple_wolf
+  const ta = state.assignments.find(a => a.name === targetName);
+  if (ta) ta.roleId = 'simple_wolf';
+  closeModal();
+  renderGame();
+}
+
+// ═══════════════════════════════════════════════════════
+//  DEVOTED SERVANT MODAL
+// ═══════════════════════════════════════════════════════
+function openDevotedModal(actorName) {
+  const dead = state.assignments.filter(a => !state.playerStatus[a.name]?.alive && a.name !== actorName);
+  $('modalTitle').innerHTML = `🎀 Devoted Servant — Take Role`;
+  $('modalBody').innerHTML = `
+    <p>Sélectionnez le rôle du joueur éliminé à prendre (la Servante prend ce rôle).</p>
+    <div class="modal-select-list">
+      ${dead.length === 0 ? '<p style="color:var(--text-dim);">Aucun joueur éliminé.</p>' : dead.map(a => {
+        const role = roleById(a.roleId);
+        return `
+          <div class="modal-player-row" onclick="confirmDevoted('${escName(a.name)}','${escName(actorName)}')">
+            <span class="mpr-name">${a.name}</span>
+            <span class="mpr-role">${role?.emoji} ${role?.nameEn}</span>
+          </div>`;
+      }).join('')}
+    </div>
+    <button class="modal-confirm-btn" onclick="closeModal()">✕ Fermer</button>
+  `;
+  openModal();
+}
+
+function confirmDevoted(targetName, actorName) {
+  const targetA = state.assignments.find(a => a.name === targetName);
+  const servantA = state.assignments.find(a => a.name === actorName);
+  if (targetA && servantA) {
+    servantA.roleId = targetA.roleId;
+    // Revive servant (she continues playing)
+    if (state.playerStatus[actorName]) state.playerStatus[actorName].alive = true;
+  }
+  closeModal();
+  renderGame();
+}
 
 </script>
 </body>
