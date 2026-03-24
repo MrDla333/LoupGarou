@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DZ RESPAWN — Loup-Garou</title>
+<title>DZESPORTS — Loup-Garou</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap');
@@ -892,7 +892,7 @@ body {
 <div id="setupScreen" class="screen active">
   <div class="setup-wrap">
     <div class="setup-header">
-      <div class="brand">DZ RESPAWN</div>
+      <div class="brand">DZESPORTS</div>
       <h1>🐺 LOUP-GAROU 🐺</h1>
       <p class="subtitle">Générateur de rôles — مولّد الأدوار</p>
     </div>
@@ -954,7 +954,7 @@ body {
 
   <div class="game-header">
     <div class="game-header-left">
-      <div class="brand small">DZ RESPAWN</div>
+      <div class="brand small">DZESPORTS</div>
       <div class="night-label" id="nightLabel">Nuit 1 — الليلة ١</div>
     </div>
     <div class="game-header-center">
@@ -1043,11 +1043,21 @@ const ROLES = [
     descAr:'يستيقظ مع الذئاب، ثم يستيقظ مجددًا ليلغي القتل ويزيل زميلًا ذئبًا.',
     difficulty: 3 },
 
-  { id:'alpha_wolf',    emoji:'👑', team:'Wolves',    wakes:true,  nightOrder:130, defaultCount:0, minCount:0, maxCount:1,
-    nameEn:'Alpha Wolf',      nameAr:'الذئب الألفا',
-    descEn:'You wake every night with the wolf pack for the kill vote. Your special power: you can Suicide on any night, and can even kill a target AND suicide the same night. If you suicide next to the Hunting Dog (adjacent right), the Hunting Dog dies and pulls the next villager to their right down too, a chain kill. If the Hunting Dog correctly guesses you, you wake up, witness the result, then fall asleep — suicide replaces any further actions. The most dangerous wolf role in the game. Timing your suicide is everything.',
-    descAr:'تستيقظ كل ليلة مع الذئاب. قدرتك: تستطيع الانتحار أي ليلة، بل يمكنك قتل هدف والانتحار في نفس الليلة. إذا انتحرت بجانب كلب الصيد، يموت كلب الصيد ويجر معه القروي التالي على يمينه. إذا خمّن كلب الصيد بشكل صحيح، تستيقظ وترى النتيجة ثم تنام. أخطر دور ذئب في اللعبة. توقيت انتحارك هو كل شيء.',
-    difficulty: 3 },
+  {
+    id: 'alpha_wolf',
+    emoji: '👑',
+    team: 'Wolves',
+    wakes: true,
+    nightOrder: 130,
+    defaultCount: 0,
+    minCount: 0,
+    maxCount: 1,
+    nameEn: 'Alpha Wolf',
+    nameAr: 'الذئب الألفا',
+    descEn: 'You wake every night with the wolf pack for the kill vote. Your special power: you can suicide on any night and choose a target to kill the same night. If you pick the Hunting Dog, both you and the Hunting Dog die, along with the villager to the Hunting Dog\'s right (chain kill). If you pick another Alpha Wolf, only the two of you die. Timing your suicide is critical—use it wisely.',
+    descAr: 'تستيقظ كل ليلة مع الذئاب للتصويت على القتل. قدرتك الخاصة: يمكنك الانتحار أي ليلة واختيار هدف للقتل في نفس الليلة. إذا اخترت كلب الصيد، يموت كلاكما مع القروي على يمين كلب الصيد (قتل متسلسل). إذا اخترت ذئباً ألفا آخر، يموت فقط كلاكما. توقيت انتحارك حاسم — استخدمه بحكمة.',
+    difficulty: 3
+  },
 
   { id:'infected_wolf', emoji:'🧫', team:'Wolves',    wakes:true,  nightOrder:45,  defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Infected Wolf',   nameAr:'الذئب المعدي',
@@ -1111,11 +1121,21 @@ const ROLES = [
     descAr:'كل ليلة تستيقظ ويتحقق المضيف مما إذا وجدت الساحرة. بمجرد العثور عليها، تمنحها جرعة إحياء إضافية وجرعة قتل إضافية، مضاعفاً قدرتها من 1+1 إلى 2+2. بعدها تتوقف عن الاستيقاظ نهائياً. هدفك كله إيجاد الساحرة وتمكينها — بسيط لكن يمكن أن يغيّر مجرى اللعبة.',
     difficulty: 1 },
 
-  { id:'hunting_dog',   emoji:'🐕', team:'Villagers', wakes:true,  nightOrder:120, defaultCount:0, minCount:0, maxCount:1,
-    nameEn:'Hunting Dog',     nameAr:'كلب الصيد',
-    descEn:'You are the direct counter to the Alpha Wolf. You act before them in the night order, meaning you get first strike. You can sacrifice yourself to name one player as the Alpha Wolf: if correct, both you and the Alpha Wolf die — a huge trade. If wrong, only you die. This is all-or-nothing: a wrong guess wastes your role entirely, but a correct guess eliminates the most dangerous wolf in the game before they can ever act.',
-    descAr:'أنت المواجه المباشر للذئب الألفا. تتصرف قبله في ترتيب الليل، أي تضرب أولاً. يمكنك التضحية بنفسك وتسمية لاعع كذئب ألفا: إن كنت محقاً يموت كلاكما — صفقة ضخمة. إن كنت مخطئاً، تموت أنت فقط. مقامرة كل شيء أو لا شيء: الخطأ يهدر دورك كلياً، والصحيح يزيل أخطر ذئب قبل أن يتصرف.',
-    difficulty: 2 },
+  {
+    id: 'hunting_dog',
+    emoji: '🐕',
+    team: 'Villagers',
+    wakes: true,
+    nightOrder: 120,
+    defaultCount: 0,
+    minCount: 0,
+    maxCount: 1,
+    nameEn: 'Hunting Dog',
+    nameAr: 'كلب الصيد',
+    descEn: 'You are the direct counter to the Alpha Wolf. You act before them in the night order. You can sacrifice yourself to name one player as the Alpha Wolf: if correct, both you and the Alpha Wolf die—a major trade. If wrong, only you die. This is all-or-nothing: a wrong guess wastes your role, but a correct guess eliminates the most dangerous wolf before they can act.',
+    descAr: 'أنت المواجه المباشر للذئب الألفا. تتصرف قبله في ترتيب الليل. يمكنك التضحية بنفسك لتسمية لاعب كذئب ألفا: إذا كنت محقاً، يموت كلاكما — صفقة كبيرة. إذا كنت مخطئاً، تموت أنت فقط. مقامرة كل شيء أو لا شيء: الخطأ يهدر دورك، لكن الصواب يزيل أخطر ذئب قبل أن يتصرف.',
+    difficulty: 2
+  },
 
   { id:'ancient',       emoji:'👴', team:'Villagers', wakes:false, nightOrder:null, defaultCount:0, minCount:0, maxCount:1,
     nameEn:'Ancient',         nameAr:'الشيخ',
